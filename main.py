@@ -96,6 +96,7 @@ def start_screen(level):
     change_cors_hero_y = 0
     camera = Camera()
     player = None
+    go = False
 
     while True:
         for event in pygame.event.get():
@@ -107,18 +108,25 @@ def start_screen(level):
                     player = generate_level(level)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    change_cors_hero_x -= tile_width
+                    change_cors_hero_x -= tile_width // 2
                 elif event.key == pygame.K_RIGHT:
-                    change_cors_hero_x += tile_width
+                    change_cors_hero_x += tile_width // 2
                 elif event.key == pygame.K_UP:
-                    change_cors_hero_y -= tile_height
+                    change_cors_hero_y -= tile_height // 2
                 elif event.key == pygame.K_DOWN:
-                    change_cors_hero_y += tile_height
+                    change_cors_hero_y += tile_height // 2
+                if event.key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN):
+                    go = True
+            elif event.type == pygame.KEYUP:
+                if event.key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN):
+                    go = False
 
         if player:
             screen.fill(pygame.Color("Black"))
-            player.update(change_cors_hero_x, change_cors_hero_y)
-            change_cors_hero_x, change_cors_hero_y = 0, 0
+            if go:
+                player.update(change_cors_hero_x, change_cors_hero_y)
+            else:
+                change_cors_hero_x, change_cors_hero_y = 0, 0
 
             camera.update(player)
             for sprite in all_sprites:
