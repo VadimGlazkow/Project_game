@@ -6,7 +6,7 @@ FPS = 50
 WIDTH, HEIGHT = 500, 500
 
 tile_images = {
-            'wall': pygame.image.load('box.png'),
+            'wall': pygame.image.load('box.jpg'),
             'empty': pygame.image.load('grass.png')
         }
 player_image = pygame.image.load('mar.png')
