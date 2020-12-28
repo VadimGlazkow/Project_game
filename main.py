@@ -85,27 +85,69 @@ def generate_level(level):
     return new_player
 
 
-def start_screen(level):
+class Button:
+    def __init__(self, width, height, octbut, nooctbut):
+        self.width = width
+        self.height = height
+        self.octbut = octbut
+        self.nooctbut = nooctbut
+
+    def draw(self, text, x, y, screen, event1=None):
+        mausx1, mausy1 = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        if x < mausx1 < x + self.width and y < mausy1 < y + self.height:
+            pygame.draw.rect(screen, self.nooctbut, (x, y, self.width, self.height))
+            font = pygame.font.Font(None, 40)
+            text = font.render(text, True, (255, 0, 0))
+            screen.blit(text, (x, y))
+            if click[0]:
+                if event1 is not None:
+                    event1()
+                else:
+                    return True
+        else:
+            pygame.draw.rect(screen, self.octbut, (x, y, self.width, self.height))
+            font = pygame.font.Font(None, 40)
+            text = font.render(text, True, (255, 255, 255))
+            screen.blit(text, (x, y))
+
+
+def start_game(screen):
+    fon = pygame.transform.scale(pygame.image.load('fon.jpg'), (WIDTH, HEIGHT))
+    screen.blit(fon, (0, 0))
+    clock = pygame.time.Clock()
+    run = True
+    start_btn = Button(300, 70, (200, 0, 0), (255, 255, 255))
+    quit_btn = Button(300, 70, (200, 0, 0), (255, 255, 255))
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+        rez = start_btn.draw("Начать игру", 100, 90, screen)
+        quit_btn.draw('Выйти', 100, 200, screen, terminate)
+        if rez:
+            run = False
+        pygame.display.flip()
+        clock.tick(FPS)
+
+
+def game(level):
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Перемещение героя. Новый уровень")
+    start_game(screen)
     clock = pygame.time.Clock()
     fon = pygame.transform.scale(pygame.image.load('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     change_cors_hero_x = 0
     change_cors_hero_y = 0
     camera = Camera()
-    player = None
     go = False
-
+    player = generate_level(level)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            elif not player:
-                if event.type == pygame.KEYDOWN or \
-                        event.type == pygame.MOUSEBUTTONDOWN:
-                    player = generate_level(level)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     change_cors_hero_x -= tile_width // 4
@@ -121,16 +163,15 @@ def start_screen(level):
                 if event.key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN):
                     go = False
 
-        if player:
-            screen.fill(pygame.Color("Black"))
-            if go:
-                player.update(change_cors_hero_x, change_cors_hero_y)
-            else:
-                change_cors_hero_x, change_cors_hero_y = 0, 0
+        screen.fill(pygame.Color("Black"))
+        if go:
+            player.update(change_cors_hero_x, change_cors_hero_y)
+        else:
+            change_cors_hero_x, change_cors_hero_y = 0, 0
 
-            camera.update(player)
-            for sprite in all_sprites:
-                camera.apply(sprite)
+        camera.update(player)
+        for sprite in all_sprites:
+            camera.apply(sprite)
 
         all_sprites.draw(screen)
         tiles_group.draw(screen)
@@ -142,6 +183,6 @@ def start_screen(level):
 
 name_map = "map_of_lesson.txt"
 try:
-    start_screen(load_level(name_map))
+    game(load_level(name_map))
 except FileNotFoundError:
     print(f"Карты {name_map} не существует")
