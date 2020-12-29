@@ -6,6 +6,7 @@ import random
 
 FPS = 60
 WIDTH, HEIGHT = 1280, 720
+SIZE_HERO = 60, 75
 
 
 def load_image(name, colorkey=None):
@@ -39,7 +40,7 @@ tile_images = {
             'priming': pygame.transform.scale(load_image('priming.png', colorkey=1), (50, 50)),
             'stump': pygame.transform.scale(load_image('stump.png', colorkey=1), (50, 50))
         }
-player_image = pygame.transform.scale(load_image('mar.png'), (60, 75))
+player_image = pygame.transform.scale(load_image('mar.png'), SIZE_HERO)
 tile_width = tile_height = 100
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
@@ -82,6 +83,32 @@ class Player(pygame.sprite.Sprite):
         if collect:
             self.rect.x -= maybe_x
             self.rect.y -= maybe_y
+
+        new_x, new_y = SIZE_HERO
+
+        self.rect.x += new_x
+        if pygame.sprite.spritecollideany(self, tiles_group):
+            self.rect.x -= new_x
+        else:
+            self.rect.x -= new_x + tile_width // 4
+
+        self.rect.x -= new_x
+        if pygame.sprite.spritecollideany(self, tiles_group):
+            self.rect.x += new_x
+        else:
+            self.rect.x += new_x + tile_width // 4
+
+        self.rect.y += new_y
+        if pygame.sprite.spritecollideany(self, tiles_group):
+            self.rect.y -= new_y
+        else:
+            self.rect.y -= new_y + tile_height // 4
+
+        self.rect.y -= new_y
+        if pygame.sprite.spritecollideany(self, tiles_group):
+            self.rect.y += new_y
+        else:
+            self.rect.y += new_y + tile_height // 4
 
 
 class Camera:
