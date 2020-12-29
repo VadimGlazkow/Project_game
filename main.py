@@ -1,6 +1,7 @@
 import pygame
 import sys
 import os
+import random
 
 
 FPS = 60
@@ -25,7 +26,9 @@ tile_images = {
             'fence': pygame.transform.scale(load_image('fence.png', colorkey=-1), (100, 100)),
             'stone': pygame.transform.scale(load_image('stone.png', colorkey=-1), (100, 100)),
             'grass': pygame.transform.scale(load_image('grass.png', colorkey=-1), (100, 100)),
-            'home': pygame.transform.scale(load_image('home.jpg', colorkey=1), (200, 200))
+            'home': pygame.transform.scale(load_image('home.jpg', colorkey=1), (200, 200)),
+            'flower_one': pygame.transform.scale(load_image('flower_one.png', colorkey=1), (50, 50)),
+            'flower_two': pygame.transform.scale(load_image('flower_two.png', colorkey=1), (50, 50))
         }
 player_image = pygame.transform.scale(load_image('mar.png'), (60, 75))
 tile_width = tile_height = 100
@@ -92,6 +95,7 @@ def load_level(filename):
 
 def generate_level(level):
     new_player = None
+    flowes = ['flower_one', 'flower_two']
     for y in range(len(level)):
         for x in range(len(level[y])):
             if level[y][x] == '.':
@@ -107,6 +111,10 @@ def generate_level(level):
                 new_player = Player(x, y)
             elif level[y][x] == '&':
                 Tile('home', x, y)
+            elif level[y][x] == '^':
+                num = random.randint(0, 1)
+                Tile('grass', x, y)
+                Tile(flowes[num], x, y)
     return new_player
 
 
