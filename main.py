@@ -1,15 +1,32 @@
 import pygame
 import sys
+import os
 
 
 FPS = 50
-WIDTH, HEIGHT = 500, 500
+WIDTH, HEIGHT = 1280, 720
+
+
+def load_image(name, colorkey=None):
+    fullname = os.path.join("tiles", name)
+    if not os.path.isfile(fullname):
+        print(f"Файл с изображением '{fullname}' не найден")
+        sys.exit()
+    image = pygame.image.load(fullname)
+    if colorkey is not None:
+        if colorkey == -1:
+            colorkey = image.get_at((0, 0))
+        image.set_colorkey(colorkey)
+    return image
+
 
 tile_images = {
-            'wall': pygame.image.load('box1.png'),
-            'empty': pygame.image.load('grass.png')
+            'tree': load_image('tree.png'),
+            'fence': load_image('fence.png', -1),
+            'stone': load_image('stone.png', -1),
+            'grass': load_image('grass.png', -1)
         }
-player_image = pygame.image.load('mar.png')
+player_image = load_image('mar.png')
 tile_width = tile_height = 50
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
@@ -36,13 +53,13 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += maybe_x
         self.rect.y += maybe_y
 
-        collect = pygame.sprite.spritecollideany(self, tiles_group)
+        """collect = pygame.sprite.spritecollideany(self, tiles_group)
         if not collect:
             self.rect.x -= maybe_x
             self.rect.y -= maybe_y
         elif collect.image == tile_images["wall"]:
             self.rect.x -= maybe_x
-            self.rect.y -= maybe_y
+            self.rect.y -= maybe_y"""
 
 
 class Camera:
@@ -75,12 +92,16 @@ def generate_level(level):
     new_player = None
     for y in range(len(level)):
         for x in range(len(level[y])):
+            Tile('grass', x, y)
             if level[y][x] == '.':
-                Tile('empty', x, y)
+                pass
             elif level[y][x] == '#':
-                Tile('wall', x, y)
+                Tile('fence', x, y)
+            elif level[y][x] == '*':
+                Tile('stone', x, y)
+            elif level[y][x] == '+':
+                Tile('tree', x, y)
             elif level[y][x] == '@':
-                Tile('empty', x, y)
                 new_player = Player(x, y)
     return new_player
 
@@ -181,7 +202,7 @@ def game(level):
         clock.tick(FPS)
 
 
-name_map = "map_of_lesson.txt"
+name_map = "map.txt"
 try:
     game(load_level(name_map))
 except FileNotFoundError:
