@@ -3,7 +3,7 @@ import sys
 import os
 
 
-FPS = 50
+FPS = 60
 WIDTH, HEIGHT = 1280, 720
 
 
@@ -161,10 +161,11 @@ def game(level):
     clock = pygame.time.Clock()
     fon = pygame.transform.scale(pygame.image.load('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
-    change_cors_hero_x = 0
-    change_cors_hero_y = 0
     camera = Camera()
-    go = False
+    dict_go = {"left": [False, [-tile_width // 16, 0]],
+               "right": [False, [tile_width // 16, 0]],
+               "up": [False, [0, -tile_height // 16]],
+               "down": [False, [0, tile_height // 16]]}
     player = generate_level(level)
     while True:
         for event in pygame.event.get():
@@ -172,24 +173,29 @@ def game(level):
                 terminate()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    change_cors_hero_x -= tile_width // 4
+                    dict_go["left"][0] = True
                 elif event.key == pygame.K_RIGHT:
-                    change_cors_hero_x += tile_width // 4
+                    dict_go["right"][0] = True
                 elif event.key == pygame.K_UP:
-                    change_cors_hero_y -= tile_height // 4
+                    dict_go["up"][0] = True
                 elif event.key == pygame.K_DOWN:
-                    change_cors_hero_y += tile_height // 4
-                if event.key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN):
-                    go = True
+                    dict_go["down"][0] = True
             elif event.type == pygame.KEYUP:
-                if event.key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN):
-                    go = False
+                directions = [("left", pygame.K_LEFT), ("right", pygame.K_RIGHT),
+                              ("up", pygame.K_UP), ("down", pygame.K_DOWN)]
+                for name_straw, button in directions:
+                    if event.key == button:
+                        dict_go[name_straw][0] = False
 
         screen.fill(pygame.Color("Black"))
-        if go:
-            player.update(change_cors_hero_x, change_cors_hero_y)
-        else:
-            change_cors_hero_x, change_cors_hero_y = 0, 0
+        x_work, y_work = 0, 0
+        for straw in dict_go:
+            bool, value = dict_go[straw]
+            if bool:
+                x_work += value[0]
+                y_work += value[1]
+
+        player.update(x_work, y_work)
 
         camera.update(player)
         for sprite in all_sprites:
