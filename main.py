@@ -45,6 +45,10 @@ class Tile(pygame.sprite.Sprite):
             tile_width * pos_x, tile_height * pos_y)
         self.mask = pygame.mask.from_surface(self.image)
 
+    def update(self, maybe_x=0, maybe_y=0):
+        self.rect.x += maybe_x
+        self.rect.y += maybe_y
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
@@ -104,6 +108,9 @@ def generate_level(level):
         for x in range(len(level[y])):
             if level[y][x] == '.':
                 Tile('grass', x, y)
+                if random.randint(1, 10) in [1, 5]:
+                    num_flowers = random.randint(0, 1)
+                    Tile(flowes[num_flowers], x, y).update(25, 25)
             elif level[y][x] == '#':
                 Tile('fence', x, y)
             elif level[y][x] == '*':
@@ -115,10 +122,6 @@ def generate_level(level):
                 new_player = Player(x, y)
             elif level[y][x] == '&':
                 Tile('home', x, y)
-            elif level[y][x] == '^':
-                num = random.randint(0, 1)
-                Tile('grass', x, y)
-                Tile(flowes[num], x, y)
     return new_player
 
 
