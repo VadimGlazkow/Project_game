@@ -24,7 +24,8 @@ tile_images = {
             'tree': pygame.transform.scale(load_image('tree.png'), (100, 100)),
             'fence': pygame.transform.scale(load_image('fence.png', colorkey=-1), (100, 100)),
             'stone': pygame.transform.scale(load_image('stone.png', colorkey=-1), (100, 100)),
-            'grass': pygame.transform.scale(load_image('grass.png', colorkey=-1), (100, 100))
+            'grass': pygame.transform.scale(load_image('grass.png', colorkey=-1), (100, 100)),
+            'home': pygame.transform.scale(load_image('home.jpg', colorkey=1), (200, 200))
         }
 player_image = pygame.transform.scale(load_image('mar.png'), (60, 75))
 tile_width = tile_height = 100
@@ -47,7 +48,7 @@ class Player(pygame.sprite.Sprite):
         self.image = player_image
         self.cor_x, self.cor_y = pos_x, pos_y
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x + 15, tile_height * pos_y + 5)
+            tile_width * pos_x + 30, tile_height * pos_y + 10)
 
     def update(self, maybe_x=0, maybe_y=0):
         self.rect.x += maybe_x
@@ -58,7 +59,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.x -= maybe_x
             self.rect.y -= maybe_y
         elif collect.image == tile_images["stone"] or collect.image == tile_images["tree"] or\
-                collect.image == tile_images["fence"]:
+                collect.image == tile_images["fence"] or collect.image == tile_images["home"]:
             self.rect.x -= maybe_x
             self.rect.y -= maybe_y
 
@@ -104,6 +105,8 @@ def generate_level(level):
             elif level[y][x] == '@':
                 Tile('grass', x, y)
                 new_player = Player(x, y)
+            elif level[y][x] == '&':
+                Tile('home', x, y)
     return new_player
 
 
