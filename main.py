@@ -28,7 +28,16 @@ tile_images = {
             'grass': pygame.transform.scale(load_image('grass.png', colorkey=-1), (100, 100)),
             'home': pygame.transform.scale(load_image('home.jpg', colorkey=1), (200, 200)),
             'flower_one': pygame.transform.scale(load_image('flower_one.png', colorkey=1), (50, 50)),
-            'flower_two': pygame.transform.scale(load_image('flower_two.png', colorkey=1), (50, 50))
+            'flower_two': pygame.transform.scale(load_image('flower_two.png', colorkey=1), (50, 50)),
+            'flower_three': pygame.transform.scale(load_image('flower_three.png', colorkey=1), (50, 50)),
+            'flower_four': pygame.transform.scale(load_image('flower_four.png', colorkey=1), (50, 50)),
+            'flower_five': pygame.transform.scale(load_image('flower_five.png', colorkey=1), (50, 50)),
+            'grass_one': pygame.transform.scale(load_image('grass_one.png', colorkey=1), (50, 50)),
+            'list': pygame.transform.scale(load_image('list.png', colorkey=1), (50, 50)),
+            'mushroom_one': pygame.transform.scale(load_image('mushroom_one.png', colorkey=1), (50, 50)),
+            'mushroom_two': pygame.transform.scale(load_image('mushroom_two.png', colorkey=1), (50, 50)),
+            'priming': pygame.transform.scale(load_image('priming.png', colorkey=1), (50, 50)),
+            'stump': pygame.transform.scale(load_image('stump.png', colorkey=1), (50, 50))
         }
 player_image = pygame.transform.scale(load_image('mar.png'), (60, 75))
 tile_width = tile_height = 100
@@ -103,13 +112,14 @@ def load_level(filename):
 
 def generate_level(level):
     new_player = None
-    flowes = ['flower_one', 'flower_two']
+    flowes = ['flower_one', 'flower_two', 'flower_three', 'flower_four', 'flower_five',
+              'grass_one', 'list', 'mushroom_one', 'mushroom_two', 'priming', 'stump']
     for y in range(len(level)):
         for x in range(len(level[y])):
             if level[y][x] == '.':
                 Tile('grass', x, y)
-                if random.randint(1, 10) in [1, 5]:
-                    num_flowers = random.randint(0, 1)
+                if random.randint(1, 10) in [1, 5, 2]:
+                    num_flowers = random.randint(0, 10)
                     Tile(flowes[num_flowers], x, y).update(25, 25)
             elif level[y][x] == '#':
                 Tile('fence', x, y)
