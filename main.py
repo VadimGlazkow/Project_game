@@ -21,13 +21,13 @@ def load_image(name, colorkey=None):
 
 
 tile_images = {
-            'tree': load_image('tree.png'),
-            'fence': load_image('fence.png', -1),
-            'stone': load_image('stone.png', -1),
-            'grass': load_image('grass.png', -1)
+            'tree': pygame.transform.scale(load_image('tree.png'), (100, 100)),
+            'fence': pygame.transform.scale(load_image('fence.png', colorkey=-1), (100, 100)),
+            'stone': pygame.transform.scale(load_image('stone.png', colorkey=-1), (100, 100)),
+            'grass': pygame.transform.scale(load_image('grass.png', colorkey=-1), (100, 100))
         }
-player_image = load_image('mar.png')
-tile_width = tile_height = 50
+player_image = pygame.transform.scale(load_image('mar.png'), (60, 75))
+tile_width = tile_height = 100
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
@@ -53,13 +53,14 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += maybe_x
         self.rect.y += maybe_y
 
-        """collect = pygame.sprite.spritecollideany(self, tiles_group)
+        collect = pygame.sprite.spritecollideany(self, tiles_group)
+        print(collect)
         if not collect:
             self.rect.x -= maybe_x
             self.rect.y -= maybe_y
-        elif collect.image == tile_images["wall"]:
+        elif collect.image == tile_images["stone"]:
             self.rect.x -= maybe_x
-            self.rect.y -= maybe_y"""
+            self.rect.y -= maybe_y
 
 
 class Camera:
