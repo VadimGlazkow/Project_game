@@ -43,6 +43,7 @@ class Tile(pygame.sprite.Sprite):
         self.image = tile_images[tile_type]
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
+        self.mask = pygame.mask.from_surface(self.image)
 
 
 class Player(pygame.sprite.Sprite):
@@ -52,17 +53,20 @@ class Player(pygame.sprite.Sprite):
         self.cor_x, self.cor_y = pos_x, pos_y
         self.rect = self.image.get_rect().move(
             tile_width * pos_x + 30, tile_height * pos_y + 10)
+        self.mask = pygame.mask.from_surface(self.image)
 
     def update(self, maybe_x=0, maybe_y=0):
         self.rect.x += maybe_x
         self.rect.y += maybe_y
 
-        collect = pygame.sprite.spritecollideany(self, tiles_group)
-        if not collect:
-            self.rect.x -= maybe_x
-            self.rect.y -= maybe_y
-        elif collect.image == tile_images["stone"] or collect.image == tile_images["tree"] or\
-                collect.image == tile_images["fence"] or collect.image == tile_images["home"]:
+        collect = False
+        for sprite in tiles_group:
+            if pygame.sprite.collide_mask(self, sprite):
+                if sprite.image in (tile_images["stone"], tile_images["tree"],
+                                    tile_images["fence"], tile_images["home"]):
+                    collect = True
+                    break
+        if collect:
             self.rect.x -= maybe_x
             self.rect.y -= maybe_y
 
