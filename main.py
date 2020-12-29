@@ -162,10 +162,10 @@ def game(level):
     fon = pygame.transform.scale(pygame.image.load('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     camera = Camera()
-    dict_go = {"left": [False, [-tile_width // 16, 0]],
-               "right": [False, [tile_width // 16, 0]],
-               "up": [False, [0, -tile_height // 16]],
-               "down": [False, [0, tile_height // 16]]}
+    dict_go = {"left": [False, [-tile_width // 4, 0]],
+               "right": [False, [tile_width // 4, 0]],
+               "up": [False, [0, -tile_height // 4]],
+               "down": [False, [0, tile_height // 4]]}
     player = generate_level(level)
     while True:
         for event in pygame.event.get():
