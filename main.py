@@ -54,11 +54,11 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += maybe_y
 
         collect = pygame.sprite.spritecollideany(self, tiles_group)
-        print(collect)
         if not collect:
             self.rect.x -= maybe_x
             self.rect.y -= maybe_y
-        elif collect.image == tile_images["stone"]:
+        elif collect.image == tile_images["stone"] or collect.image == tile_images["tree"] or\
+                collect.image == tile_images["fence"]:
             self.rect.x -= maybe_x
             self.rect.y -= maybe_y
 
@@ -93,9 +93,8 @@ def generate_level(level):
     new_player = None
     for y in range(len(level)):
         for x in range(len(level[y])):
-            Tile('grass', x, y)
             if level[y][x] == '.':
-                pass
+                Tile('grass', x, y)
             elif level[y][x] == '#':
                 Tile('fence', x, y)
             elif level[y][x] == '*':
@@ -103,6 +102,7 @@ def generate_level(level):
             elif level[y][x] == '+':
                 Tile('tree', x, y)
             elif level[y][x] == '@':
+                Tile('grass', x, y)
                 new_player = Player(x, y)
     return new_player
 
