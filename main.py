@@ -28,7 +28,6 @@ tile_images = {
             'stone': pygame.transform.scale(load_image('stone.png', colorkey=-1), (100, 100)),
             'grass': pygame.transform.scale(load_image('grass.png', colorkey=-1), (100, 100)),
             'home': pygame.transform.scale(load_image('home.jpg', colorkey=1), (200, 200)),
-            'spawn': pygame.transform.scale(load_image('spawn.png', colorkey=1), (200, 300)),
             'flower_one': pygame.transform.scale(load_image('flower_one.png', colorkey=1), (50, 50)),
             'flower_two': pygame.transform.scale(load_image('flower_two.png', colorkey=1), (50, 50)),
             'flower_three': pygame.transform.scale(load_image('flower_three.png', colorkey=1), (50, 50)),
@@ -43,7 +42,6 @@ tile_images = {
         }
 player_image = pygame.transform.scale(load_image('mar.png'), SIZE_HERO)
 tile_width = tile_height = 100
-SPEDD = tile_width // 25
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
@@ -71,7 +69,7 @@ class Player(pygame.sprite.Sprite):
             tile_width * pos_x + 30, tile_height * pos_y + 10)
         self.mask = pygame.mask.from_surface(self.image)
 
-    def update(self, maybe_x=0, maybe_y=0):
+    def update(self, maybe_x=0, maybe_y=0, speed=tile_height // 25):
         self.rect.x += maybe_x
         self.rect.y += maybe_y
 
@@ -79,8 +77,7 @@ class Player(pygame.sprite.Sprite):
         for sprite in tiles_group:
             if pygame.sprite.collide_mask(self, sprite):
                 if sprite.image in (tile_images["stone"], tile_images["tree"],
-                                    tile_images["fence"], tile_images["home"],
-                                    tile_images["spawn"]):
+                                    tile_images["fence"], tile_images["home"]):
                     collect = True
                     break
         if collect:
@@ -93,25 +90,25 @@ class Player(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, tiles_group):
             self.rect.x -= new_x
         else:
-            self.rect.x -= new_x + SPEDD
+            self.rect.x -= new_x + speed
 
         self.rect.x -= new_x
         if pygame.sprite.spritecollideany(self, tiles_group):
             self.rect.x += new_x
         else:
-            self.rect.x += new_x + SPEDD
+            self.rect.x += new_x + speed
 
         self.rect.y += new_y
         if pygame.sprite.spritecollideany(self, tiles_group):
             self.rect.y -= new_y
         else:
-            self.rect.y -= new_y + SPEDD
+            self.rect.y -= new_y + speed
 
         self.rect.y -= new_y
         if pygame.sprite.spritecollideany(self, tiles_group):
             self.rect.y += new_y
         else:
-            self.rect.y += new_y + SPEDD
+            self.rect.y += new_y + speed
 
 
 class Camera:
@@ -162,8 +159,6 @@ def generate_level(level):
                 new_player = Player(x, y)
             elif level[y][x] == '&':
                 Tile('home', x, y)
-            elif level[y][x] == '-':
-                Tile('spawn', x, y)
     return new_player
 
 
@@ -222,10 +217,10 @@ def game(level):
     fon = pygame.transform.scale(pygame.image.load('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     camera = Camera()
-    dict_go = {"left": [False, [-SPEDD, 0]],
-               "right": [False, [SPEDD, 0]],
-               "up": [False, [0, -SPEDD]],
-               "down": [False, [0, SPEDD]]}
+    dict_go = {"left": [False, [-tile_width // 25, 0], tile_height // 25],
+               "right": [False, [tile_width // 25, 0], tile_height // 25],
+               "up": [False, [0, -tile_height // 25], tile_height // 25],
+               "down": [False, [0, tile_height // 25], tile_height // 25]}
     list_side = ['left', "right", "up", "down"]
     player = generate_level(level)
     while True:
@@ -239,8 +234,10 @@ def game(level):
                     for i in list_side:
                         if i == 'left' or i == 'right':
                             dict_go[i][1][0] = dict_go[i][1][0] * 3
+                            dict_go[i][2] *= 3
                         else:
                             dict_go[i][1][1] = dict_go[i][1][1] * 3
+                            dict_go[i][2] *= 3
                 elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                     dict_go["right"][0] = True
                 elif event.key == pygame.K_UP or event.key == pygame.K_w:
@@ -255,17 +252,19 @@ def game(level):
                     for i in list_side:
                         if i == 'left' or i == 'right':
                             dict_go[i][1][0] = dict_go[i][1][0] // 3
+                            dict_go[i][2] //= 3
                         else:
                             dict_go[i][1][1] = dict_go[i][1][1] // 3
+                            dict_go[i][2] //= 3
                 for name_straw, button in directions:
                     if event.key == button:
                         dict_go[name_straw][0] = False
 
         screen.fill(pygame.Color("Black"))
         for straw in dict_go:
-            bool, value = dict_go[straw]
+            bool, value, speed = dict_go[straw]
             if bool:
-                player.update(*value)
+                player.update(*value, speed)
 
         camera.update(player)
         for sprite in all_sprites:
