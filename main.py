@@ -221,6 +221,7 @@ def game(level):
                "right": [False, [tile_width // 25, 0]],
                "up": [False, [0, -tile_height // 25]],
                "down": [False, [0, tile_height // 25]]}
+    list_side = ['left', "right", "up", "down"]
     player = generate_level(level)
     while True:
         for event in pygame.event.get():
@@ -229,6 +230,12 @@ def game(level):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                     dict_go["left"][0] = True
+                elif event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
+                    for i in list_side:
+                        if i == 'left' or i == 'right':
+                            dict_go[i][1][0] = dict_go[i][1][0] * 3
+                        else:
+                            dict_go[i][1][1] = dict_go[i][1][1] * 3
                 elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                     dict_go["right"][0] = True
                 elif event.key == pygame.K_UP or event.key == pygame.K_w:
@@ -239,6 +246,12 @@ def game(level):
                 directions = [("left", pygame.K_LEFT), ("right", pygame.K_RIGHT),
                               ("up", pygame.K_UP), ("down", pygame.K_DOWN), ('down', pygame.K_s),
                               ('up', pygame.K_w), ('left', pygame.K_a), ("right", pygame.K_d)]
+                if event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
+                    for i in list_side:
+                        if i == 'left' or i == 'right':
+                            dict_go[i][1][0] = dict_go[i][1][0] // 3
+                        else:
+                            dict_go[i][1][1] = dict_go[i][1][1] // 3
                 for name_straw, button in directions:
                     if event.key == button:
                         dict_go[name_straw][0] = False
