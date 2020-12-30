@@ -243,14 +243,10 @@ def game(level):
                         dict_go[name_straw][0] = False
 
         screen.fill(pygame.Color("Black"))
-        x_work, y_work = 0, 0
         for straw in dict_go:
             bool, value = dict_go[straw]
             if bool:
-                x_work += value[0]
-                y_work += value[1]
-
-        player.update(x_work, y_work)
+                player.update(*value)
 
         camera.update(player)
         for sprite in all_sprites:
