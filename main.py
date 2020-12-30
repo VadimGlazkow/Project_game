@@ -49,7 +49,10 @@ player_group = pygame.sprite.Group()
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, pos_x, pos_y):
-        super().__init__(tiles_group, all_sprites)
+        if tile_type == "fon":
+            super().__init__(all_sprites)
+        else:
+            super().__init__(tiles_group, all_sprites)
         self.image = tile_images[tile_type]
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
@@ -267,7 +270,8 @@ def game(level):
                     if event.key == button:
                         dict_go[name_straw][0] = False
 
-        screen.fill(pygame.Color("Black"))
+        # screen.fill(pygame.Color("Black"))
+        screen.blit(fon, (0, 0))
         for straw in dict_go:
             bool, value, speed = dict_go[straw]
             if bool:

@@ -50,7 +50,7 @@ clock = pygame.time.Clock()
 all_sprites = pygame.sprite.Group()
 # pygame.transform.scale(load_image('tree.png'), (100, 100))
 # hero = AnimatedSprite(pygame.transform.scale(load_image("spider.png", -1), (600, 400)), 6, 4, 100, 100)
-hero = AnimatedSprite(load_image("man.jpg", -1), 8, 1, 100, 100)
+hero = AnimatedSprite(load_image("zir.png", -1), 9, 6, 100, 100)
 
 
 while True:
