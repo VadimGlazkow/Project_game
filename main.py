@@ -227,17 +227,18 @@ def game(level):
             if event.type == pygame.QUIT:
                 terminate()
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                     dict_go["left"][0] = True
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                     dict_go["right"][0] = True
-                elif event.key == pygame.K_UP:
+                elif event.key == pygame.K_UP or event.key == pygame.K_w:
                     dict_go["up"][0] = True
-                elif event.key == pygame.K_DOWN:
+                elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
                     dict_go["down"][0] = True
             elif event.type == pygame.KEYUP:
                 directions = [("left", pygame.K_LEFT), ("right", pygame.K_RIGHT),
-                              ("up", pygame.K_UP), ("down", pygame.K_DOWN)]
+                              ("up", pygame.K_UP), ("down", pygame.K_DOWN), ('down', pygame.K_s),
+                              ('up', pygame.K_w), ('left', pygame.K_a), ("right", pygame.K_d)]
                 for name_straw, button in directions:
                     if event.key == button:
                         dict_go[name_straw][0] = False
