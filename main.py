@@ -37,7 +37,8 @@ tile_images = {
             'mushroom_one': pygame.transform.scale(load_image('mushroom_one.png'), (50, 50)),
             'mushroom_two': pygame.transform.scale(load_image('mushroom_two.png'), (50, 50)),
             'priming': pygame.transform.scale(load_image('priming.png'), (50, 50)),
-            'stump': pygame.transform.scale(load_image('stump.png'), (50, 50))
+            'stump': pygame.transform.scale(load_image('stump.png'), (50, 50)),
+            'fon': pygame.transform.scale(load_image('fon.jpg'), (5300, 3900))
         }
 player_image = pygame.transform.scale(load_image('mar.png'), SIZE_HERO)
 tile_width = tile_height = 100
@@ -141,8 +142,9 @@ def generate_level(level):
     new_player = None
     flowes = ['flower_one', 'flower_two', 'flower_three', 'flower_four', 'flower_five',
               'grass_one', 'list', 'mushroom_one', 'mushroom_two', 'priming', 'stump']
-    for y in range(len(level) -1, -1, -1):
-        for x in range(len(level[y]) -1, -1, -1):
+    Tile('fon', -7, -6)
+    for y in range(len(level) - 2, -1, -1):
+        for x in range(len(level[y]) - 1, -1, -1):
             Tile('grass', x, y)
             if level[y][x] == '.':
                 # Tile('grass', x, y)
