@@ -24,7 +24,9 @@ tile_images = {
             'stone': pygame.transform.scale(load_image('stone.png'), (100, 100)),
             'grass': pygame.transform.scale(load_image('grass.png'), (100, 100)),
             'home': pygame.transform.scale(load_image('home.jpg'), (200, 200)),
-            'spawn': pygame.transform.scale(load_image('spawn.png'), (200, 300)),
+            'spawn_one': pygame.transform.scale(load_image('spawn.png'), (200, 300)),
+            'spawn_two': pygame.transform.flip(pygame.transform.scale(load_image('spawn.png'),
+                                                                      (200, 300)), True, False),
             'flower_one': pygame.transform.scale(load_image('flower_one.png'), (50, 50)),
             'flower_two': pygame.transform.scale(load_image('flower_two.png'), (50, 50)),
             'flower_three': pygame.transform.scale(load_image('flower_three.png'), (50, 50)),
@@ -75,7 +77,7 @@ class Player(pygame.sprite.Sprite):
             if pygame.sprite.collide_mask(self, sprite):
                 if sprite.image in (tile_images["stone"], tile_images["tree"],
                                     tile_images["fence"], tile_images["home"],
-                                    tile_images["spawn"]):
+                                    tile_images["spawn_one"], tile_images["spawn_two"]):
                     collect = True
                     break
         if collect:
@@ -159,7 +161,9 @@ def generate_level(level):
             elif level[y][x] == '&':
                 Tile('home', x, y)
             elif level[y][x] == '-':
-                Tile('spawn', x, y)
+                Tile('spawn_one', x, y)
+            elif level[y][x] == '_':
+                Tile('spawn_two', x, y)
     return new_player
 
 
