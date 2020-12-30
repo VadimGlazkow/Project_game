@@ -48,9 +48,13 @@ pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 all_sprites = pygame.sprite.Group()
-hero = AnimatedSprite(load_image("map.png", -1), 11, 1, 100, 100)
+# pygame.transform.scale(load_image('tree.png'), (100, 100))
+# hero = AnimatedSprite(pygame.transform.scale(load_image("spider.png", -1), (600, 400)), 6, 4, 100, 100)
+hero = AnimatedSprite(load_image("man.jpg", -1), 8, 1, 100, 100)
+
 
 while True:
+    screen.fill(pygame.Color("white"))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             terminate()

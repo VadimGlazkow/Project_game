@@ -6,7 +6,7 @@ import random
 
 FPS = 60
 WIDTH, HEIGHT = 1280, 720
-SIZE_HERO = 60, 75
+SIZE_HERO = 50, 60
 
 
 def load_image(name, colorkey=None):
@@ -90,25 +90,25 @@ class Player(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, tiles_group):
             self.rect.x -= new_x
         else:
-            self.rect.x -= new_x + tile_width // 4
+            self.rect.x -= new_x + tile_width // 25
 
         self.rect.x -= new_x
         if pygame.sprite.spritecollideany(self, tiles_group):
             self.rect.x += new_x
         else:
-            self.rect.x += new_x + tile_width // 4
+            self.rect.x += new_x + tile_width // 25
 
         self.rect.y += new_y
         if pygame.sprite.spritecollideany(self, tiles_group):
             self.rect.y -= new_y
         else:
-            self.rect.y -= new_y + tile_height // 4
+            self.rect.y -= new_y + tile_height // 25
 
         self.rect.y -= new_y
         if pygame.sprite.spritecollideany(self, tiles_group):
             self.rect.y += new_y
         else:
-            self.rect.y += new_y + tile_height // 4
+            self.rect.y += new_y + tile_height // 25
 
 
 class Camera:
@@ -217,10 +217,10 @@ def game(level):
     fon = pygame.transform.scale(pygame.image.load('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     camera = Camera()
-    dict_go = {"left": [False, [-tile_width // 4, 0]],
-               "right": [False, [tile_width // 4, 0]],
-               "up": [False, [0, -tile_height // 4]],
-               "down": [False, [0, tile_height // 4]]}
+    dict_go = {"left": [False, [-tile_width // 25, 0]],
+               "right": [False, [tile_width // 25, 0]],
+               "up": [False, [0, -tile_height // 25]],
+               "down": [False, [0, tile_height // 25]]}
     player = generate_level(level)
     while True:
         for event in pygame.event.get():
