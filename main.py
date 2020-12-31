@@ -40,7 +40,7 @@ tile_images = {
             'stump': pygame.transform.scale(load_image('stump.png'), (50, 50)),
             'fon': pygame.transform.scale(load_image('fon.jpg'), (5300, 3900))
         }
-player_image = pygame.transform.scale(load_image('mar.png'), SIZE_HERO)
+player_image = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (50, 60))
 tile_width = tile_height = 100
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
@@ -72,10 +72,34 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(
             tile_width * pos_x + 30, tile_height * pos_y + 10)
         self.mask = pygame.mask.from_surface(self.image)
+        self.hero_stand_down = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (50, 60))
+        self.hero_stand_right = pygame.transform.scale(load_image("hero_stand_right.png", "heros"), (50, 60))
+        self.hero_stand_left = pygame.transform.flip(self.hero_stand_right, True, False)
+        self.hero_stand_up = pygame.transform.scale(load_image("hero_stand_up.png", "heros"), (50, 60))
+        self.hero_left = AnimatedSprite(pygame.transform.scale(load_image("hero_left.png", "heros"),
+                                                              (450, 60)), 9, 1, 0, 0)
+        self.hero_right = AnimatedSprite(pygame.transform.scale(load_image("hero_right.png", "heros"),
+                                                              (450, 60)), 9, 1, 0, 0)
+        self.hero_up = AnimatedSprite(pygame.transform.scale(load_image("hero_up.png", "heros"),
+                                                        (450, 60)), 9, 1, 0, 0)
+        self.hero_down = AnimatedSprite(pygame.transform.scale(load_image("hero_down.png", "heros"),
+                                                          (450, 60)), 9, 1, 0, 0)
 
     def update(self, maybe_x=0, maybe_y=0, speed=tile_height // 25):
         self.rect.x += maybe_x
         self.rect.y += maybe_y
+        if maybe_x > 0 and maybe_y == 0:
+            self.image = self.hero_right.image
+            self.hero_right.update(0, 0)
+        elif maybe_x < 0 and maybe_y == 0:
+            self.image = self.hero_left.image
+            self.hero_left.update(0, 0)
+        elif maybe_x == 0 and maybe_y > 0:
+            self.image = self.hero_down.image
+            self.hero_down.update(0, 0)
+        elif maybe_x == 0 and maybe_y < 0:
+            self.image = self.hero_up.image
+            self.hero_up.update(0, 0)
 
         collect = False
         for sprite in tiles_group:
@@ -252,14 +276,7 @@ def game(level):
     fon = pygame.transform.scale(pygame.image.load('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     camera = Camera()
-    """hero_left = AnimatedSprite(pygame.transform.scale(load_image("hero_left.png", "heros"),
-                                                      (450, 60)), 9, 1, 0, 0)
-    hero_right = AnimatedSprite(pygame.transform.scale(load_image("hero_right.png", "heros"),
-                                                      (450, 60)), 9, 1, 0, 0)"""
-    hero_up = AnimatedSprite(pygame.transform.scale(load_image("hero_up.png", "heros"),
-                                                      (450, 60)), 9, 1, 0, 0)
-    """hero_down = AnimatedSprite(pygame.transform.scale(load_image("hero_down.png", "heros"),
-                                                      (450, 60)), 9, 1, 0, 0)"""
+    finish_operation = 'down'
     dict_go = {"left": [False, [-tile_width // 25, 0], tile_height // 25],
                "right": [False, [tile_width // 25, 0], tile_height // 25],
                "up": [False, [0, -tile_height // 25], tile_height // 25],
@@ -303,12 +320,22 @@ def game(level):
                     if event.key == button:
                         dict_go[name_straw][0] = False
 
-        # screen.fill(pygame.Color("Black"))
         screen.blit(fon, (0, 0))
+        comand = 0
         for straw in dict_go:
             bool, value, speed = dict_go[straw]
             if bool:
                 player.update(*value, speed)
+                comand += 1
+                finish_operation = straw
+        if comand == 0 and finish_operation == 'down':
+            player.image = player.hero_stand_down
+        elif comand == 0 and finish_operation == 'right':
+            player.image = player.hero_stand_right
+        elif comand == 0 and finish_operation == 'left':
+            player.image = player.hero_stand_left
+        elif comand == 0 and finish_operation == 'up':
+            player.image = player.hero_stand_up
 
         camera.update(player)
         for sprite in all_sprites:
@@ -317,9 +344,6 @@ def game(level):
         all_sprites.draw(screen)
         tiles_group.draw(screen)
         player_group.draw(screen)
-
-        animation_group.draw(screen)
-        hero_up.update(player.rect.x, player.rect.y)
 
 
         pygame.display.flip()
