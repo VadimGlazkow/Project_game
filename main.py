@@ -277,6 +277,7 @@ def game(level):
     screen.blit(fon, (0, 0))
     camera = Camera()
     finish_operation = 'down'
+    shift = False
     dict_go = {"left": [False, [-tile_width // 25, 0], tile_height // 25],
                "right": [False, [tile_width // 25, 0], tile_height // 25],
                "up": [False, [0, -tile_height // 25], tile_height // 25],
@@ -291,13 +292,7 @@ def game(level):
                 if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                     dict_go["left"][0] = True
                 elif event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
-                    for i in list_side:
-                        if i == 'left' or i == 'right':
-                            dict_go[i][1][0] = dict_go[i][1][0] * 3
-                            dict_go[i][2] *= 3
-                        else:
-                            dict_go[i][1][1] = dict_go[i][1][1] * 3
-                            dict_go[i][2] *= 3
+                    shift = True
                 elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                     dict_go["right"][0] = True
                 elif event.key == pygame.K_UP or event.key == pygame.K_w:
@@ -309,13 +304,7 @@ def game(level):
                               ("up", pygame.K_UP), ("down", pygame.K_DOWN), ('down', pygame.K_s),
                               ('up', pygame.K_w), ('left', pygame.K_a), ("right", pygame.K_d)]
                 if event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
-                    for i in list_side:
-                        if i == 'left' or i == 'right':
-                            dict_go[i][1][0] = dict_go[i][1][0] // 3
-                            dict_go[i][2] //= 3
-                        else:
-                            dict_go[i][1][1] = dict_go[i][1][1] // 3
-                            dict_go[i][2] //= 3
+                    shift = False
                 for name_straw, button in directions:
                     if event.key == button:
                         dict_go[name_straw][0] = False
@@ -324,10 +313,15 @@ def game(level):
         comand = 0
         for straw in dict_go:
             bool, value, speed = dict_go[straw]
-            if bool:
+            if bool and not shift:
                 player.update(*value, speed)
                 comand += 1
                 finish_operation = straw
+            if bool and shift:
+                for i in range(3):
+                    player.update(*value, speed)
+                    comand += 1
+                    finish_operation = straw
         if comand == 0 and finish_operation == 'down':
             player.image = player.hero_stand_down
         elif comand == 0 and finish_operation == 'right':

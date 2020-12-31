@@ -49,7 +49,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 all_sprites = pygame.sprite.Group()
 # pygame.transform.scale(load_image('tree.png'), (100, 100))
-hero = AnimatedSprite(pygame.transform.scale(load_image("hero_hit_right.png", -1), (450, 60)), 7, 1, 100, 100)
+hero = AnimatedSprite(pygame.transform.scale(load_image("hero_hit_up.png", -1), (450, 60)), 6, 1, 100, 100)
 # hero = AnimatedSprite(load_image("main_hero.png", -1), 15, 10, 100, 100)
 
 
