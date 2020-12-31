@@ -134,7 +134,8 @@ class AnimatedSprite(pygame.sprite.Sprite):
                 self.frames.append(sheet.subsurface(pygame.Rect(
                     frame_location, self.rect.size)))
 
-    def update(self):
+    def update(self, new_x, new_y):
+        self.rect.x, self.rect.y = new_x, new_y
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
 
@@ -254,11 +255,11 @@ def game(level):
     """hero_left = AnimatedSprite(pygame.transform.scale(load_image("hero_left.png", "heros"),
                                                       (450, 60)), 9, 1, 0, 0)
     hero_right = AnimatedSprite(pygame.transform.scale(load_image("hero_right.png", "heros"),
-                                                      (450, 60)), 9, 1, 0, 0)
-    hero_up = AnimatedSprite(pygame.transform.scale(load_image("hero_up.png", "heros"),
                                                       (450, 60)), 9, 1, 0, 0)"""
-    hero_down = AnimatedSprite(pygame.transform.scale(load_image("hero_down.png", "heros"),
+    hero_up = AnimatedSprite(pygame.transform.scale(load_image("hero_up.png", "heros"),
                                                       (450, 60)), 9, 1, 0, 0)
+    """hero_down = AnimatedSprite(pygame.transform.scale(load_image("hero_down.png", "heros"),
+                                                      (450, 60)), 9, 1, 0, 0)"""
     dict_go = {"left": [False, [-tile_width // 25, 0], tile_height // 25],
                "right": [False, [tile_width // 25, 0], tile_height // 25],
                "up": [False, [0, -tile_height // 25], tile_height // 25],
@@ -318,7 +319,7 @@ def game(level):
         player_group.draw(screen)
 
         animation_group.draw(screen)
-        hero_down.update()
+        hero_up.update(player.rect.x, player.rect.y)
 
 
         pygame.display.flip()
