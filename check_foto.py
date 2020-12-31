@@ -49,12 +49,12 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 all_sprites = pygame.sprite.Group()
 # pygame.transform.scale(load_image('tree.png'), (100, 100))
-hero = AnimatedSprite(pygame.transform.scale(load_image("hero_down.png", -1), (450, 60)), 9, 1, 100, 100)
+hero = AnimatedSprite(pygame.transform.scale(load_image("hero_hit_right.png", -1), (450, 60)), 7, 1, 100, 100)
 # hero = AnimatedSprite(load_image("main_hero.png", -1), 15, 10, 100, 100)
 
 
 while True:
-    screen.fill(pygame.Color("white"))
+    screen.fill(pygame.Color("black"))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             terminate()
