@@ -345,7 +345,6 @@ def game(level):
         tiles_group.draw(screen)
         player_group.draw(screen)
 
-
         pygame.display.flip()
         clock.tick(FPS)
 
