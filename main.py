@@ -9,8 +9,8 @@ WIDTH, HEIGHT = 1280, 720
 SIZE_HERO = 50, 60
 
 
-def load_image(name, colorkey=None):
-    fullname = os.path.join("tiles", name)
+def load_image(name, file="tiles"):
+    fullname = os.path.join(file, name)
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
         sys.exit()
@@ -45,6 +45,7 @@ tile_width = tile_height = 100
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
+animation_group = pygame.sprite.Group()
 
 
 class Tile(pygame.sprite.Sprite):
@@ -113,6 +114,29 @@ class Player(pygame.sprite.Sprite):
             self.rect.y += new_y
         else:
             self.rect.y += new_y + speed
+
+
+class AnimatedSprite(pygame.sprite.Sprite):
+    def __init__(self, sheet, columns, rows, x, y):
+        super().__init__(animation_group)
+        self.frames = []
+        self.cut_sheet(sheet, columns, rows)
+        self.cur_frame = 0
+        self.image = self.frames[self.cur_frame]
+        self.rect = self.rect.move(x, y)
+
+    def cut_sheet(self, sheet, columns, rows):
+        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
+                                sheet.get_height() // rows)
+        for j in range(rows):
+            for i in range(columns):
+                frame_location = (self.rect.w * i, self.rect.h * j)
+                self.frames.append(sheet.subsurface(pygame.Rect(
+                    frame_location, self.rect.size)))
+
+    def update(self):
+        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+        self.image = self.frames[self.cur_frame]
 
 
 class Camera:
@@ -227,6 +251,14 @@ def game(level):
     fon = pygame.transform.scale(pygame.image.load('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     camera = Camera()
+    """hero_left = AnimatedSprite(pygame.transform.scale(load_image("hero_left.png", "heros"),
+                                                      (450, 60)), 9, 1, 0, 0)
+    hero_right = AnimatedSprite(pygame.transform.scale(load_image("hero_right.png", "heros"),
+                                                      (450, 60)), 9, 1, 0, 0)"""
+    hero_up = AnimatedSprite(pygame.transform.scale(load_image("hero_up.png", "heros"),
+                                                      (450, 60)), 9, 1, 0, 0)
+    """hero_down = AnimatedSprite(pygame.transform.scale(load_image("hero_down.png", "heros"),
+                                                      (450, 60)), 9, 1, 0, 0)"""
     dict_go = {"left": [False, [-tile_width // 25, 0], tile_height // 25],
                "right": [False, [tile_width // 25, 0], tile_height // 25],
                "up": [False, [0, -tile_height // 25], tile_height // 25],
@@ -284,6 +316,10 @@ def game(level):
         all_sprites.draw(screen)
         tiles_group.draw(screen)
         player_group.draw(screen)
+
+        animation_group.draw(screen)
+        hero_up.update()
+
 
         pygame.display.flip()
         clock.tick(FPS)
