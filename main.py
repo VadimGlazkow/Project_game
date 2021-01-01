@@ -100,18 +100,18 @@ class Player(pygame.sprite.Sprite):
 
         self.dict_hit_hero = {
             "up": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_up.png", "heros"),
-                                                        (300, 60)), 6, 1, 0, 0),
+                                                        (550, 80)), 6, 1, 0, 0),
             "down": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_down.png", "heros"),
-                                                        (350, 60)), 7, 1, 0, 0),
+                                                        (550, 80)), 7, 1, 0, 0),
             "left": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_left.png", "heros"),
-                                                          (350, 60)), 7, 1, 0, 0),
+                                                          (500, 80)), 7, 1, 0, 0),
             "right": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_right.png", "heros"),
-                                                          (350, 60)), 7, 1, 0, 0)
+                                                          (500, 80)), 7, 1, 0, 0)
         }
         self.move = "stop"
         self.direction = "down"
 
-    def update(self, maybe_x=0, maybe_y=0):
+    def update(self, maybe_x=0, maybe_y=0, speed=tile_width // 25):
         self.rect.x += maybe_x
         self.rect.y += maybe_y
 
@@ -253,7 +253,7 @@ class Button:
     def draw(self, text, x, y, screen, event1=None):
         mausx1, mausy1 = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
-        if x < mausx1 < x + 400 and y < mausy1 < y + 120:
+        if x < mausx1 < x + 400 and y < mausy1 < y + 100:
             screen.blit(self.image_one, (x, y))
             if click[0]:
                 if event1 is not None:
@@ -288,6 +288,7 @@ def game(level):
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Перемещение героя. Новый уровень")
     start_game(screen)
+    anim_num = 0
     clock = pygame.time.Clock()
     fon = pygame.transform.scale(pygame.image.load('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
@@ -299,6 +300,7 @@ def game(level):
                "down": [False, [0, tile_height // 25]]}
     list_side = []
     player = generate_level(level)
+    ativ_anim = 0
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -331,10 +333,10 @@ def game(level):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     player.move = "hit"
-                    for _ in range(6):
-                        player.update()
-                        time.sleep(0.1)
-                    player.move = "stop"
+                    if player.direction == 'up':
+                        ativ_anim = 6
+                    else:
+                        ativ_anim = 7
 
         screen.blit(fon, (0, 0))
 
@@ -348,11 +350,18 @@ def game(level):
                 for _ in range(2):
                     player.update(*value)
                     command += 1
-        if command:
+        if player.move == 'hit' and anim_num != ativ_anim:
+            anim_num += 1
+            player.update()
+        elif command:
             player.move = "go"
+            anim_num = 0
+            ativ_anim = 5
         else:
             player.move = "stop"
             player.update()
+            ativ_anim = 0
+            anim_num = 0
 
         if list_side:
             player.direction = list_side[-1]
