@@ -2,6 +2,7 @@ import pygame
 import sys
 import os
 import random
+import time
 
 FPS = 60
 WIDTH, HEIGHT = 1280, 720
@@ -96,6 +97,17 @@ class Player(pygame.sprite.Sprite):
             "right": AnimatedSprite(pygame.transform.scale(load_image("hero_right.png", "heros"),
                                                                 (450, 60)), 9, 1, 0, 0)
         }
+
+        self.dict_hit_hero = {
+            "up": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_up.png", "heros"),
+                                                        (300, 60)), 6, 1, 0, 0),
+            "down": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_down.png", "heros"),
+                                                        (350, 60)), 7, 1, 0, 0),
+            "left": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_left.png", "heros"),
+                                                          (350, 60)), 7, 1, 0, 0),
+            "right": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_right.png", "heros"),
+                                                          (350, 60)), 7, 1, 0, 0)
+        }
         self.move = "stop"
         self.direction = "down"
 
@@ -105,9 +117,12 @@ class Player(pygame.sprite.Sprite):
 
         if self.move == "go":
             self.image = self.dict_go_hero[self.direction].image
-            self.dict_go_hero[self.direction].update(0, 0)
-        else:
+            self.dict_go_hero[self.direction].update()
+        elif self.move == "stop":
             self.image = self.dict_stop_hero[self.direction]
+        elif self.move == "hit":
+            self.image = self.dict_hit_hero[self.direction].image
+            self.dict_hit_hero[self.direction].update()
         self.mask = pygame.mask.from_surface(self.image)
 
         collect = False
@@ -167,7 +182,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
                 self.frames.append(sheet.subsurface(pygame.Rect(
                     frame_location, self.rect.size)))
 
-    def update(self, new_x, new_y):
+    def update(self, new_x=0, new_y=0):
         self.rect.x, self.rect.y = new_x, new_y
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
@@ -313,6 +328,13 @@ def game(level):
                     if event.key == button:
                         del list_side[list_side.index(name_straw)]
                         dict_go[name_straw][0] = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    player.move = "hit"
+                    for _ in range(6):
+                        player.update()
+                        time.sleep(0.1)
+                    player.move = "stop"
 
         screen.blit(fon, (0, 0))
 
