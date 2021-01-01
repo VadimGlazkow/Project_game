@@ -79,34 +79,36 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(
             tile_width * pos_x + 30, tile_height * pos_y + 10)
         self.mask = pygame.mask.from_surface(self.image)
-        self.hero_stand_down = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (50, 60))
-        self.hero_stand_right = pygame.transform.scale(load_image("hero_stand_right.png", "heros"), (50, 60))
-        self.hero_stand_left = pygame.transform.flip(self.hero_stand_right, True, False)
-        self.hero_stand_up = pygame.transform.scale(load_image("hero_stand_up.png", "heros"), (50, 60))
-        self.hero_left = AnimatedSprite(pygame.transform.scale(load_image("hero_left.png", "heros"),
-                                                               (450, 60)), 9, 1, 0, 0)
-        self.hero_right = AnimatedSprite(pygame.transform.scale(load_image("hero_right.png", "heros"),
-                                                                (450, 60)), 9, 1, 0, 0)
-        self.hero_up = AnimatedSprite(pygame.transform.scale(load_image("hero_up.png", "heros"),
-                                                             (450, 60)), 9, 1, 0, 0)
-        self.hero_down = AnimatedSprite(pygame.transform.scale(load_image("hero_down.png", "heros"),
-                                                               (450, 60)), 9, 1, 0, 0)
+        self.dict_stop_hero = {
+            "up": pygame.transform.scale(load_image("hero_stand_up.png", "heros"), (50, 60)),
+            "down": pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (50, 60)),
+            "right": pygame.transform.scale(load_image("hero_stand_right.png", "heros"), (50, 60))
+        }
+        self.dict_stop_hero["left"] = pygame.transform.flip(self.dict_stop_hero["right"], True, False)
 
-    def update(self, maybe_x=0, maybe_y=0, speed=tile_height // 25):
+        self.dict_go_hero = {
+            "up": AnimatedSprite(pygame.transform.scale(load_image("hero_up.png", "heros"),
+                                                             (450, 60)), 9, 1, 0, 0),
+            "down": AnimatedSprite(pygame.transform.scale(load_image("hero_down.png", "heros"),
+                                                               (450, 60)), 9, 1, 0, 0),
+            "left": AnimatedSprite(pygame.transform.scale(load_image("hero_left.png", "heros"),
+                                                               (450, 60)), 9, 1, 0, 0),
+            "right": AnimatedSprite(pygame.transform.scale(load_image("hero_right.png", "heros"),
+                                                                (450, 60)), 9, 1, 0, 0)
+        }
+        self.move = "stop"
+        self.direction = "down"
+
+    def update(self, maybe_x=0, maybe_y=0):
         self.rect.x += maybe_x
         self.rect.y += maybe_y
-        if maybe_x > 0 and maybe_y == 0:
-            self.image = self.hero_right.image
-            self.hero_right.update(0, 0)
-        elif maybe_x < 0 and maybe_y == 0:
-            self.image = self.hero_left.image
-            self.hero_left.update(0, 0)
-        elif maybe_x == 0 and maybe_y > 0:
-            self.image = self.hero_down.image
-            self.hero_down.update(0, 0)
-        elif maybe_x == 0 and maybe_y < 0:
-            self.image = self.hero_up.image
-            self.hero_up.update(0, 0)
+
+        if self.move == "go":
+            self.image = self.dict_go_hero[self.direction].image
+            self.dict_go_hero[self.direction].update(0, 0)
+        else:
+            self.image = self.dict_stop_hero[self.direction]
+        self.mask = pygame.mask.from_surface(self.image)
 
         collect = False
         for sprite in tiles_group:
@@ -275,29 +277,32 @@ def game(level):
     fon = pygame.transform.scale(pygame.image.load('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     camera = Camera()
-    finish_operation = 'down'
     shift = False
-    dict_go = {"left": [False, [-tile_width // 25, 0], tile_height // 25],
-               "right": [False, [tile_width // 25, 0], tile_height // 25],
-               "up": [False, [0, -tile_height // 25], tile_height // 25],
-               "down": [False, [0, tile_height // 25], tile_height // 25]}
-    list_side = ['left', "right", "up", "down"]
+    dict_go = {"left": [False, [-tile_width // 25, 0]],
+               "right": [False, [tile_width // 25, 0]],
+               "up": [False, [0, -tile_height // 25]],
+               "down": [False, [0, tile_height // 25]]}
+    list_side = []
     player = generate_level(level)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                    dict_go["left"][0] = True
-                elif event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
+                if event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
                     shift = True
+                elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
+                    dict_go["left"][0] = True
+                    list_side.append("left")
                 elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                     dict_go["right"][0] = True
+                    list_side.append("right")
                 elif event.key == pygame.K_UP or event.key == pygame.K_w:
                     dict_go["up"][0] = True
+                    list_side.append("up")
                 elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
                     dict_go["down"][0] = True
+                    list_side.append("down")
             elif event.type == pygame.KEYUP:
                 directions = [("left", pygame.K_LEFT), ("right", pygame.K_RIGHT),
                               ("up", pygame.K_UP), ("down", pygame.K_DOWN), ('down', pygame.K_s),
@@ -306,29 +311,29 @@ def game(level):
                     shift = False
                 for name_straw, button in directions:
                     if event.key == button:
+                        del list_side[list_side.index(name_straw)]
                         dict_go[name_straw][0] = False
 
         screen.blit(fon, (0, 0))
-        comand = 0
+
+        command = 0
         for straw in dict_go:
-            bool, value, speed = dict_go[straw]
+            bool, value = dict_go[straw]
             if bool and not shift:
-                player.update(*value, speed)
-                comand += 1
-                finish_operation = straw
+                player.update(*value)
+                command += 1
             if bool and shift:
-                for i in range(2):
-                    player.update(*value, speed)
-                    comand += 1
-                    finish_operation = straw
-        if comand == 0 and finish_operation == 'down':
-            player.image = player.hero_stand_down
-        elif comand == 0 and finish_operation == 'right':
-            player.image = player.hero_stand_right
-        elif comand == 0 and finish_operation == 'left':
-            player.image = player.hero_stand_left
-        elif comand == 0 and finish_operation == 'up':
-            player.image = player.hero_stand_up
+                for _ in range(2):
+                    player.update(*value)
+                    command += 1
+        if command:
+            player.move = "go"
+        else:
+            player.move = "stop"
+            player.update()
+
+        if list_side:
+            player.direction = list_side[-1]
 
         camera.update(player)
         for sprite in all_sprites:
