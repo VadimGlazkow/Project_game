@@ -3,7 +3,6 @@ import sys
 import os
 import random
 
-
 FPS = 60
 WIDTH, HEIGHT = 1280, 720
 SIZE_HERO = 50, 60
@@ -19,27 +18,35 @@ def load_image(name, file="tiles"):
 
 
 tile_images = {
-            'tree': pygame.transform.scale(load_image('tree.png'), (100, 100)),
-            'fence': pygame.transform.scale(load_image('fence.png'), (100, 100)),
-            'stone': pygame.transform.scale(load_image('stone.png'), (100, 100)),
-            'grass': pygame.transform.scale(load_image('grass.png'), (100, 100)),
-            'home': pygame.transform.scale(load_image('home.jpg'), (200, 200)),
-            'spawn_one': pygame.transform.scale(load_image('spawn.png'), (200, 300)),
-            'spawn_two': pygame.transform.flip(pygame.transform.scale(load_image('spawn.png'),
-                                                                      (200, 300)), True, False),
-            'flower_one': pygame.transform.scale(load_image('flower_one.png'), (50, 50)),
-            'flower_two': pygame.transform.scale(load_image('flower_two.png'), (50, 50)),
-            'flower_three': pygame.transform.scale(load_image('flower_three.png'), (50, 50)),
-            'flower_four': pygame.transform.scale(load_image('flower_four.png'), (50, 50)),
-            'flower_five': pygame.transform.scale(load_image('flower_five.png'), (50, 50)),
-            'grass_one': pygame.transform.scale(load_image('grass_one.png'), (50, 50)),
-            'list': pygame.transform.scale(load_image('list.png'), (50, 50)),
-            'mushroom_one': pygame.transform.scale(load_image('mushroom_one.png'), (50, 50)),
-            'mushroom_two': pygame.transform.scale(load_image('mushroom_two.png'), (50, 50)),
-            'priming': pygame.transform.scale(load_image('priming.png'), (50, 50)),
-            'stump': pygame.transform.scale(load_image('stump.png'), (50, 50)),
-            'fon': pygame.transform.scale(load_image('fon.jpg'), (5300, 3900))
-        }
+    'tree': pygame.transform.scale(load_image('tree.png'), (100, 100)),
+    'fence': pygame.transform.scale(load_image('fence.png'), (100, 100)),
+    'stone': pygame.transform.scale(load_image('stone.png'), (100, 100)),
+    'grass': pygame.transform.scale(load_image('grass.png'), (100, 100)),
+    'home': pygame.transform.scale(load_image('home.jpg'), (200, 200)),
+    'spawn_one': pygame.transform.scale(load_image('spawn.png'), (200, 300)),
+    'spawn_two': pygame.transform.flip(pygame.transform.scale(load_image('spawn.png'),
+                                                              (200, 300)), True, False),
+    'flower_one': pygame.transform.scale(load_image('flower_one.png'), (50, 50)),
+    'flower_two': pygame.transform.scale(load_image('flower_two.png'), (50, 50)),
+    'flower_three': pygame.transform.scale(load_image('flower_three.png'), (50, 50)),
+    'flower_four': pygame.transform.scale(load_image('flower_four.png'), (50, 50)),
+    'flower_five': pygame.transform.scale(load_image('flower_five.png'), (50, 50)),
+    'grass_one': pygame.transform.scale(load_image('grass_one.png'), (50, 50)),
+    'list': pygame.transform.scale(load_image('list.png'), (50, 50)),
+    'mushroom_one': pygame.transform.scale(load_image('mushroom_one.png'), (50, 50)),
+    'mushroom_two': pygame.transform.scale(load_image('mushroom_two.png'), (50, 50)),
+    'priming': pygame.transform.scale(load_image('priming.png'), (50, 50)),
+    'stump': pygame.transform.scale(load_image('stump.png'), (50, 50)),
+    'fon': pygame.transform.scale(load_image('fon.jpg'), (5300, 3900)),
+    'Start_onclick': pygame.transform.scale(load_image('Start_onclick.png', 'Start_menu'),
+                                            (400, 120)),
+    'Start_click': pygame.transform.scale(load_image('Start_click.png', 'Start_menu'),
+                                          (400, 120)),
+    'quit_onclick': pygame.transform.scale(load_image('quit_onclick.png', 'Start_menu'),
+                                           (400, 120)),
+    'quit_click': pygame.transform.scale(load_image('quit_click.png', 'Start_menu'),
+                                         (400, 120))
+}
 player_image = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (50, 60))
 tile_width = tile_height = 100
 all_sprites = pygame.sprite.Group()
@@ -77,13 +84,13 @@ class Player(pygame.sprite.Sprite):
         self.hero_stand_left = pygame.transform.flip(self.hero_stand_right, True, False)
         self.hero_stand_up = pygame.transform.scale(load_image("hero_stand_up.png", "heros"), (50, 60))
         self.hero_left = AnimatedSprite(pygame.transform.scale(load_image("hero_left.png", "heros"),
-                                                              (450, 60)), 9, 1, 0, 0)
+                                                               (450, 60)), 9, 1, 0, 0)
         self.hero_right = AnimatedSprite(pygame.transform.scale(load_image("hero_right.png", "heros"),
-                                                              (450, 60)), 9, 1, 0, 0)
+                                                                (450, 60)), 9, 1, 0, 0)
         self.hero_up = AnimatedSprite(pygame.transform.scale(load_image("hero_up.png", "heros"),
-                                                        (450, 60)), 9, 1, 0, 0)
+                                                             (450, 60)), 9, 1, 0, 0)
         self.hero_down = AnimatedSprite(pygame.transform.scale(load_image("hero_down.png", "heros"),
-                                                          (450, 60)), 9, 1, 0, 0)
+                                                               (450, 60)), 9, 1, 0, 0)
 
     def update(self, maybe_x=0, maybe_y=0, speed=tile_height // 25):
         self.rect.x += maybe_x
@@ -222,30 +229,22 @@ def generate_level(level):
 
 
 class Button:
-    def __init__(self, width, height, octbut, nooctbut):
-        self.width = width
-        self.height = height
-        self.octbut = octbut
-        self.nooctbut = nooctbut
+    def __init__(self, image_one, image_two):
+        self.image_one = image_one
+        self.image_two = image_two
 
     def draw(self, text, x, y, screen, event1=None):
         mausx1, mausy1 = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
-        if x < mausx1 < x + self.width and y < mausy1 < y + self.height:
-            pygame.draw.rect(screen, self.nooctbut, (x, y, self.width, self.height))
-            font = pygame.font.Font(None, 40)
-            text = font.render(text, True, (255, 0, 0))
-            screen.blit(text, (x, y))
+        if x < mausx1 < x + 400 and y < mausy1 < y + 120:
+            screen.blit(self.image_one, (x, y))
             if click[0]:
                 if event1 is not None:
                     event1()
                 else:
                     return True
         else:
-            pygame.draw.rect(screen, self.octbut, (x, y, self.width, self.height))
-            font = pygame.font.Font(None, 40)
-            text = font.render(text, True, (255, 255, 255))
-            screen.blit(text, (x, y))
+            screen.blit(self.image_two, (x, y))
 
 
 def start_game(screen):
@@ -253,14 +252,14 @@ def start_game(screen):
     screen.blit(fon, (0, 0))
     clock = pygame.time.Clock()
     run = True
-    start_btn = Button(300, 70, (200, 0, 0), (255, 255, 255))
-    quit_btn = Button(300, 70, (200, 0, 0), (255, 255, 255))
+    start_btn = Button(tile_images['Start_click'], tile_images['Start_onclick'])
+    quit_btn = Button(tile_images['quit_click'], tile_images['quit_onclick'])
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
         rez = start_btn.draw("Начать игру", 100, 90, screen)
-        quit_btn.draw('Выйти', 100, 200, screen, terminate)
+        quit_btn.draw('Выйти', 100, 230, screen, terminate)
         if rez:
             run = False
         pygame.display.flip()
@@ -318,7 +317,7 @@ def game(level):
                 comand += 1
                 finish_operation = straw
             if bool and shift:
-                for i in range(3):
+                for i in range(2):
                     player.update(*value, speed)
                     comand += 1
                     finish_operation = straw
