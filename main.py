@@ -3,7 +3,7 @@ import sys
 import os
 import random
 
-FPS = 60
+FPS = 10
 WIDTH, HEIGHT = 1280, 720
 SIZE_HERO = 50, 60
 
@@ -286,6 +286,9 @@ def start_game(screen):
 
 def game(level):
     pygame.init()
+    '''pygame.mixer.music.load('Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
+    pygame.mixer.music.set_volume(0.1)'''
+    pygame.mixer.music.play(-1)
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Перемещение героя. Новый уровень")
     start_game(screen)
@@ -332,6 +335,8 @@ def game(level):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     player.move = "hit"
+                    pygame.mixer.music.load('sing_hit.mp4')
+                    pygame.mixer.music.play()
 
         screen.blit(fon, (0, 0))
 
