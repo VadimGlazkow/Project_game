@@ -3,7 +3,7 @@ import sys
 import os
 import random
 
-FPS = 10
+FPS = 60
 WIDTH, HEIGHT = 1280, 720
 SIZE_HERO = 50, 60
 
@@ -142,29 +142,29 @@ class Player(pygame.sprite.Sprite):
 
         new_x, new_y = SIZE_HERO
 
-        self.rect.x += new_x
+        self.rect.x += new_x * 1.5
         if pygame.sprite.spritecollideany(self, tiles_group):
-            self.rect.x -= new_x
+            self.rect.x -= new_x * 1.5
         else:
-            self.rect.x -= new_x + speed
+            self.rect.x -= new_x * 1.5 + speed
 
-        self.rect.x -= new_x
+        self.rect.x -= new_x * 0.5
         if pygame.sprite.spritecollideany(self, tiles_group):
-            self.rect.x += new_x
+            self.rect.x += new_x * 0.5
         else:
-            self.rect.x += new_x + speed
+            self.rect.x += new_x * 0.5 + speed
 
-        self.rect.y += new_y
+        self.rect.y += new_y * 1.3
         if pygame.sprite.spritecollideany(self, tiles_group):
-            self.rect.y -= new_y
+            self.rect.y -= new_y * 1.3
         else:
-            self.rect.y -= new_y + speed
+            self.rect.y -= new_y * 1.3 + speed
 
-        self.rect.y -= new_y
+        self.rect.y -= new_y * 0.6
         if pygame.sprite.spritecollideany(self, tiles_group):
-            self.rect.y += new_y
+            self.rect.y += new_y * 0.6
         else:
-            self.rect.y += new_y + speed
+            self.rect.y += new_y * 0.6 + speed
 
 
 class AnimatedSprite(pygame.sprite.Sprite):
@@ -272,12 +272,21 @@ def start_game(screen):
     run = True
     start_btn = Button(tile_images['Start_click'], tile_images['Start_onclick'])
     quit_btn = Button(tile_images['quit_click'], tile_images['quit_onclick'])
+    pygame.mouse.set_visible(False)
+    image_mouse = pygame.transform.scale(load_image("mouse.png", "Start_menu"), (20, 20))
+    cor_mouse = 0, 0
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
+            elif event.type == pygame.MOUSEMOTION:
+                cor_mouse = event.pos
+
+        screen.blit(fon, (0, 0))
         rez = start_btn.draw("Начать игру", 100, 90, screen)
         quit_btn.draw('Выйти', 100, 230, screen, terminate)
+        if pygame.mouse.get_focused():
+            screen.blit(image_mouse, cor_mouse)
         if rez:
             run = False
         pygame.display.flip()
@@ -323,6 +332,8 @@ def game(level):
                 elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
                     dict_go["down"][0] = True
                     list_side.append("down")
+                elif event.key == pygame.K_ESCAPE:
+                    start_game(screen)
             elif event.type == pygame.KEYUP:
                 directions = [("left", pygame.K_LEFT), ("right", pygame.K_RIGHT),
                               ("up", pygame.K_UP), ("down", pygame.K_DOWN), ('down', pygame.K_s),
