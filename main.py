@@ -78,40 +78,40 @@ class Player(pygame.sprite.Sprite):
         self.image = player_image
         self.cor_x, self.cor_y = pos_x, pos_y
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x + 30, tile_height * pos_y + 10)
+            tile_width * pos_x, tile_height * pos_y)
         self.mask = pygame.mask.from_surface(self.image)
         self.dict_stop_hero = {
-            "up": pygame.transform.scale(load_image("hero_stand_up.png", "heros"), (50, 60)),
-            "down": pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (50, 60)),
-            "right": pygame.transform.scale(load_image("hero_stand_right.png", "heros"), (50, 60))
+            "up": pygame.transform.scale(load_image("hero_stand_up.png", "heros"), (100, 100)),
+            "down": pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (100, 100)),
+            "right": pygame.transform.scale(load_image("hero_stand_right.png", "heros"), (100, 100))
         }
         self.dict_stop_hero["left"] = pygame.transform.flip(self.dict_stop_hero["right"], True, False)
 
         self.dict_go_hero = {
             "up": AnimatedSprite(pygame.transform.scale(load_image("hero_up.png", "heros"),
-                                                             (450, 60)), 9, 1, 0, 0),
+                                                             (900, 100)), 9, 1, 0, 0),
             "down": AnimatedSprite(pygame.transform.scale(load_image("hero_down.png", "heros"),
-                                                               (450, 60)), 9, 1, 0, 0),
+                                                               (900, 100)), 9, 1, 0, 0),
             "left": AnimatedSprite(pygame.transform.scale(load_image("hero_left.png", "heros"),
-                                                               (450, 60)), 9, 1, 0, 0),
+                                                               (900, 100)), 9, 1, 0, 0),
             "right": AnimatedSprite(pygame.transform.scale(load_image("hero_right.png", "heros"),
-                                                                (450, 60)), 9, 1, 0, 0)
+                                                                (900, 100)), 9, 1, 0, 0)
         }
 
         self.dict_hit_hero = {
             "up": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_up.png", "heros"),
-                                                        (300, 60)), 6, 1, 0, 0),
+                                                        (600, 100)), 6, 1, 0, 0),
             "down": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_down.png", "heros"),
-                                                        (350, 60)), 7, 1, 0, 0),
+                                                        (700, 100)), 7, 1, 0, 0),
             "left": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_left.png", "heros"),
-                                                          (350, 60)), 7, 1, 0, 0),
+                                                          (550, 85)), 7, 1, 0, 0),
             "right": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_right.png", "heros"),
-                                                          (350, 60)), 7, 1, 0, 0)
+                                                          (550, 85)), 7, 1, 0, 0)
         }
         self.move = "stop"
         self.direction = "down"
 
-    def update(self, maybe_x=0, maybe_y=0):
+    def update(self, maybe_x=0, maybe_y=0, speed=tile_width // 25):
         self.rect.x += maybe_x
         self.rect.y += maybe_y
 
@@ -123,6 +123,10 @@ class Player(pygame.sprite.Sprite):
         elif self.move == "hit":
             self.image = self.dict_hit_hero[self.direction].image
             self.dict_hit_hero[self.direction].update()
+            fotos = len(self.dict_hit_hero[self.direction].frames) - 1
+            if self.dict_hit_hero[self.direction].cur_frame == fotos:
+                self.move = "stop"
+
         self.mask = pygame.mask.from_surface(self.image)
 
         collect = False
@@ -223,7 +227,6 @@ def generate_level(level):
         for x in range(len(level[y]) - 1, -1, -1):
             Tile('grass', x, y)
             if level[y][x] == '.':
-                # Tile('grass', x, y)
                 if random.randint(1, 10) in [1, 5, 2]:
                     num_flowers = random.randint(0, 10)
                     Tile(flowes[num_flowers], x, y).update(25, 25)
@@ -234,7 +237,6 @@ def generate_level(level):
             elif level[y][x] == '+':
                 Tile('tree', x, y)
             elif level[y][x] == '@':
-                # Tile('grass', x, y)
                 new_player = Player(x, y)
             elif level[y][x] == '&':
                 Tile('home', x, y)
@@ -331,10 +333,6 @@ def game(level):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     player.move = "hit"
-                    for _ in range(6):
-                        player.update()
-                        time.sleep(0.1)
-                    player.move = "stop"
 
         screen.blit(fon, (0, 0))
 
@@ -348,10 +346,13 @@ def game(level):
                 for _ in range(2):
                     player.update(*value)
                     command += 1
-        if command:
-            player.move = "go"
-        else:
-            player.move = "stop"
+        if player.move != "hit":
+            if command:
+                player.move = "go"
+            else:
+                player.move = "stop"
+                player.update()
+        if player.move == "hit":
             player.update()
 
         if list_side:
