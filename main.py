@@ -2,7 +2,6 @@ import pygame
 import sys
 import os
 import random
-import time
 
 FPS = 60
 WIDTH, HEIGHT = 1280, 720
