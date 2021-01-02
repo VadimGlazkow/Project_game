@@ -48,7 +48,8 @@ tile_images = {
                                          (400, 120)),
     'heart_life': pygame.transform.scale(load_image('heart_life.png'), (60, 50)),
     'heart_half': pygame.transform.scale(load_image('heart_half.png'), (60, 50)),
-    'heart_died': pygame.transform.scale(load_image('heart_died.png'), (60, 50))
+    'heart_died': pygame.transform.scale(load_image('heart_died.png'), (60, 50)),
+    'apple': pygame.transform.scale(load_image('apple.png'), (25, 25))
 }
 player_image = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (50, 60))
 tile_width = tile_height = 100
@@ -82,6 +83,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
         self.mask = pygame.mask.from_surface(self.image)
+        self.hit_point = 2.5
         self.dict_stop_hero = {
             "up": pygame.transform.scale(load_image("hero_stand_up.png", "heros"), (100, 100)),
             "down": pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (100, 100)),
@@ -134,7 +136,11 @@ class Player(pygame.sprite.Sprite):
         collect = False
         for sprite in tiles_group:
             if pygame.sprite.collide_mask(self, sprite):
-                if sprite.image in (tile_images["stone"], tile_images["tree"],
+                if sprite.image == tile_images["apple"]:
+                    if self.hit_point < 5:
+                        self.hit_point += 0.5
+                        sprite.kill()
+                elif sprite.image in (tile_images["stone"], tile_images["tree"],
                                     tile_images["fence"], tile_images["home"],
                                     tile_images["spawn_one"], tile_images["spawn_two"]):
                     collect = True
@@ -246,6 +252,10 @@ def generate_level(level):
                 Tile('spawn_one', x, y)
             elif level[y][x] == '_':
                 Tile('spawn_two', x, y)
+            elif level[y][x] == '%':
+                apple_ex = Tile('apple', x, y)
+                apple_ex.update(32, 32)
+
     return new_player
 
 
@@ -316,7 +326,6 @@ def game(level):
     pygame.mixer.music.load('Sing\Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
     pygame.mixer.music.set_volume(0.025)
     pygame.mixer.music.play(-1)
-    hit_point = 2.5
     clock = pygame.time.Clock()
     fon = pygame.transform.scale(load_image('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
@@ -401,7 +410,7 @@ def game(level):
         all_sprites.draw(screen)
         tiles_group.draw(screen)
         player_group.draw(screen)
-        life_point(screen, hit_point)
+        life_point(screen, player.hit_point)
 
         pygame.display.flip()
         clock.tick(FPS)
