@@ -45,7 +45,10 @@ tile_images = {
     'quit_onclick': pygame.transform.scale(load_image('quit_onclick.png', 'Start_menu'),
                                            (400, 120)),
     'quit_click': pygame.transform.scale(load_image('quit_click.png', 'Start_menu'),
-                                         (400, 120))
+                                         (400, 120)),
+    'heart_life': pygame.transform.scale(load_image('heart_life.png'), (60, 50)),
+    'heart_half': pygame.transform.scale(load_image('heart_half.png'), (60, 50)),
+    'heart_died': pygame.transform.scale(load_image('heart_died.png'), (60, 50))
 }
 player_image = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (50, 60))
 tile_width = tile_height = 100
@@ -142,29 +145,29 @@ class Player(pygame.sprite.Sprite):
 
         new_x, new_y = SIZE_HERO
 
-        self.rect.x += new_x * 1.5
+        self.rect.x += int(new_x * 1.5)
         if pygame.sprite.spritecollideany(self, tiles_group):
-            self.rect.x -= new_x * 1.5
+            self.rect.x -= int(new_x * 1.5)
         else:
-            self.rect.x -= new_x * 1.5 + speed
+            self.rect.x -= int(new_x * 1.5) + speed
 
-        self.rect.x -= new_x * 0.5
+        self.rect.x -= int(new_x * 0.5)
         if pygame.sprite.spritecollideany(self, tiles_group):
-            self.rect.x += new_x * 0.5
+            self.rect.x += int(new_x * 0.5)
         else:
-            self.rect.x += new_x * 0.5 + speed
+            self.rect.x += int(new_x * 0.5) + speed
 
-        self.rect.y += new_y * 1.3
+        self.rect.y += int(new_y * 1.3)
         if pygame.sprite.spritecollideany(self, tiles_group):
-            self.rect.y -= new_y * 1.3
+            self.rect.y -= int(new_y * 1.3)
         else:
-            self.rect.y -= new_y * 1.3 + speed
+            self.rect.y -= int(new_y * 1.3) + speed
 
-        self.rect.y -= new_y * 0.6
+        self.rect.y -= int(new_y * 0.6)
         if pygame.sprite.spritecollideany(self, tiles_group):
-            self.rect.y += new_y * 0.6
+            self.rect.y += int(new_y * 0.6)
         else:
-            self.rect.y += new_y * 0.6 + speed
+            self.rect.y += int(new_y * 0.6) + speed
 
 
 class AnimatedSprite(pygame.sprite.Sprite):
@@ -293,14 +296,27 @@ def start_game(screen):
         clock.tick(FPS)
 
 
+def life_point(screen, hit_point):
+    x, y = 20, 20
+    hit_point1 = hit_point * 1
+    for i in range(5):
+        if hit_point1 > 0.5:
+            screen.blit(tile_images['heart_life'], (x + i * 50, y))
+        if hit_point1 <= 0:
+            screen.blit(tile_images['heart_died'], (x + i * 50, y))
+        if hit_point1 == 0.5:
+            screen.blit(tile_images['heart_half'], (x + i * 50, y))
+        hit_point1 -= 1
+
 def game(level):
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Перемещение героя. Новый уровень")
     start_game(screen)
     pygame.mixer.music.load('Sing\Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
-    pygame.mixer.music.set_volume(0.05)
+    pygame.mixer.music.set_volume(0.025)
     pygame.mixer.music.play(-1)
+    hit_point = 2.5
     clock = pygame.time.Clock()
     fon = pygame.transform.scale(load_image('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
@@ -356,12 +372,14 @@ def game(level):
         for straw in dict_go:
             bool, value = dict_go[straw]
             if bool and not shift:
-                go_sing.play()
+                if command % 2 == 0:
+                    go_sing.play()
                 player.update(*value)
                 command += 1
             if bool and shift:
                 for _ in range(2):
-                    go_sing.play()
+                    if _== 0:
+                        go_sing.play()
                     player.update(*value)
                     command += 1
         if player.move != "hit":
@@ -383,6 +401,7 @@ def game(level):
         all_sprites.draw(screen)
         tiles_group.draw(screen)
         player_group.draw(screen)
+        life_point(screen, hit_point)
 
         pygame.display.flip()
         clock.tick(FPS)
