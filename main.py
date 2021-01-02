@@ -381,7 +381,9 @@ def game(level):
                     dict_go["down"][0] = True
                     list_side.append("down")
                 elif event.key == pygame.K_ESCAPE:
+                    pygame.mixer.music.pause()
                     start_game(screen)
+                    pygame.mixer.music.unpause()
             elif event.type == pygame.KEYUP:
                 directions = [("left", pygame.K_LEFT), ("right", pygame.K_RIGHT),
                               ("up", pygame.K_UP), ("down", pygame.K_DOWN), ('down', pygame.K_s),
