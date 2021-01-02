@@ -88,6 +88,7 @@ class Player(pygame.sprite.Sprite):
         self.eat_sing = pygame.mixer.Sound('Sing\eat.wav')
         self.eat_sing.set_volume(0.4)
         self.eat_gold_sing = pygame.mixer.Sound('Sing\gold.wav')
+        self.apple_hit = pygame.mixer.Sound('Sing\/apple_hit.wav')
         self.dict_stop_hero = {
             "up": pygame.transform.scale(load_image("hero_stand_up.png", "heros"), (100, 100)),
             "down": pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (100, 100)),
@@ -148,6 +149,7 @@ class Player(pygame.sprite.Sprite):
                             self.eat_sing.play()
                     else:
                         sprite.kill()
+                        self.apple_hit.play()
                 elif sprite.image == tile_images['gold_apple']:
                     if self.move != "hit":
                         if self.hit_point < 5:
@@ -156,8 +158,9 @@ class Player(pygame.sprite.Sprite):
                                 self.hit_point = 5
                             sprite.kill()
                             self.eat_gold_sing.play()
-                        else:
-                            sprite.kill()
+                    else:
+                        sprite.kill()
+                        self.apple_hit.play()
                 elif sprite.image in (tile_images["stone"], tile_images["tree"],
                                     tile_images["fence"], tile_images["home"],
                                     tile_images["spawn_one"], tile_images["spawn_two"]):
