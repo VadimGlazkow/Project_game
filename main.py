@@ -286,8 +286,8 @@ def start_game(screen):
 
 def game(level):
     pygame.init()
-    '''pygame.mixer.music.load('Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
-    pygame.mixer.music.set_volume(0.1)'''
+    pygame.mixer.music.load('Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
+    pygame.mixer.music.set_volume(0.1)
     pygame.mixer.music.play(-1)
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Перемещение героя. Новый уровень")
@@ -302,6 +302,7 @@ def game(level):
                "up": [False, [0, -tile_height // 25]],
                "down": [False, [0, tile_height // 25]]}
     list_side = []
+    sound1 = pygame.mixer.Sound('sing_hit.wav')
     player = generate_level(level)
     while True:
         for event in pygame.event.get():
@@ -335,8 +336,7 @@ def game(level):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     player.move = "hit"
-                    pygame.mixer.music.load('sing_hit.mp4')
-                    pygame.mixer.music.play()
+                    sound1.play()
 
         screen.blit(fon, (0, 0))
 
