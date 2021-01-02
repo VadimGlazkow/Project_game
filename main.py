@@ -141,17 +141,23 @@ class Player(pygame.sprite.Sprite):
         for sprite in tiles_group:
             if pygame.sprite.collide_mask(self, sprite):
                 if sprite.image == tile_images["apple"]:
-                    if self.hit_point < 5:
-                        self.hit_point += 0.5
+                    if self.move != "hit":
+                        if self.hit_point < 5:
+                            self.hit_point += 0.5
+                            sprite.kill()
+                            self.eat_sing.play()
+                    else:
                         sprite.kill()
-                        self.eat_sing.play()
                 elif sprite.image == tile_images['gold_apple']:
-                    if self.hit_point < 5:
-                        self.hit_point += 1
-                        if self.hit_point > 5:
-                            self.hit_point = 5
-                        sprite.kill()
-                    self.eat_gold_sing.play()
+                    if self.move != "hit":
+                        if self.hit_point < 5:
+                            self.hit_point += 1
+                            if self.hit_point > 5:
+                                self.hit_point = 5
+                            sprite.kill()
+                            self.eat_gold_sing.play()
+                        else:
+                            sprite.kill()
                 elif sprite.image in (tile_images["stone"], tile_images["tree"],
                                     tile_images["fence"], tile_images["home"],
                                     tile_images["spawn_one"], tile_images["spawn_two"]):
