@@ -50,7 +50,9 @@ tile_images = {
     'heart_half': pygame.transform.scale(load_image('heart_half.png'), (60, 50)),
     'heart_died': pygame.transform.scale(load_image('heart_died.png'), (60, 50)),
     'apple': pygame.transform.scale(load_image('apple.png'), (25, 25)),
-    'gold_apple': pygame.transform.scale(load_image('gold_apple.png'), (30, 30))
+    'gold_apple': pygame.transform.scale(load_image('gold_apple.png'), (30, 30)),
+    'apple_dark': pygame.transform.scale(load_image('apple_dark.png'), (25, 25))
+
 }
 player_image = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (50, 60))
 tile_width = tile_height = 100
@@ -158,6 +160,14 @@ class Player(pygame.sprite.Sprite):
                                 self.hit_point = 5
                             sprite.kill()
                             self.eat_gold_sing.play()
+                    else:
+                        sprite.kill()
+                        self.apple_hit.play()
+                elif sprite.image == tile_images['apple_dark']:
+                    if self.move != "hit":
+                        self.hit_point -= 1
+                        sprite.kill()
+                        self.eat_sing.play()
                     else:
                         sprite.kill()
                         self.apple_hit.play()
@@ -274,9 +284,13 @@ def generate_level(level):
             elif level[y][x] == '_':
                 Tile('spawn_two', x, y)
             elif level[y][x] == '%':
-                if random.randint(1, 5) == 2:
+                number = random.randint(1, 5)
+                if number == 1:
                     apple_ex = Tile('gold_apple', x, y)
                     apple_ex.update(random.randint(0, 70), random.randint(0, 70))
+                elif number == 2:
+                    apple_ex = Tile('apple_dark', x, y)
+                    apple_ex.update(random.randint(0, 75), random.randint(0, 75))
                 else:
                     apple_ex = Tile('apple', x, y)
                     apple_ex.update(random.randint(0, 75), random.randint(0, 75))
@@ -414,7 +428,7 @@ def game(level):
                 command += 1
             if bool and shift:
                 for _ in range(2):
-                    if _== 0:
+                    if _ == 0:
                         go_sing.play()
                     player.update(*value)
                     command += 1
