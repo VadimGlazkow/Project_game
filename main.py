@@ -266,7 +266,7 @@ class Button:
 
 
 def start_game(screen):
-    fon = pygame.transform.scale(pygame.image.load('fon.jpg'), (WIDTH, HEIGHT))
+    fon = pygame.transform.scale(pygame.image.load('Start_menu\/fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     clock = pygame.time.Clock()
     run = True
@@ -286,14 +286,14 @@ def start_game(screen):
 
 def game(level):
     pygame.init()
-    pygame.mixer.music.load('Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
-    pygame.mixer.music.set_volume(0.05)
-    pygame.mixer.music.play(-1)
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Перемещение героя. Новый уровень")
     start_game(screen)
+    pygame.mixer.music.load('Sing\Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
+    pygame.mixer.music.set_volume(0.05)
+    pygame.mixer.music.play(-1)
     clock = pygame.time.Clock()
-    fon = pygame.transform.scale(pygame.image.load('fon.jpg'), (WIDTH, HEIGHT))
+    fon = pygame.transform.scale(load_image('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     camera = Camera()
     shift = False
@@ -302,8 +302,8 @@ def game(level):
                "up": [False, [0, -tile_height // 25]],
                "down": [False, [0, tile_height // 25]]}
     list_side = []
-    hit_sing = pygame.mixer.Sound('sing_hit.wav')
-    go_sing = pygame.mixer.Sound('go_sing.wav')
+    hit_sing = pygame.mixer.Sound('Sing\sing_hit.wav')
+    go_sing = pygame.mixer.Sound('Sing\go_sing.wav')
     player = generate_level(level)
     while True:
         for event in pygame.event.get():
