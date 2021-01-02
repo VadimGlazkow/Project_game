@@ -104,9 +104,9 @@ class Player(pygame.sprite.Sprite):
             "down": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_down.png", "heros"),
                                                         (700, 100)), 7, 1, 0, 0),
             "left": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_left.png", "heros"),
-                                                          (550, 85)), 7, 1, 0, 0),
+                                                          (700, 100)), 7, 1, 0, 0),
             "right": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_right.png", "heros"),
-                                                          (550, 85)), 7, 1, 0, 0)
+                                                          (700, 100)), 7, 1, 0, 0)
         }
         self.move = "stop"
         self.direction = "down"
