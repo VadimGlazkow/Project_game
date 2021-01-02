@@ -49,7 +49,8 @@ tile_images = {
     'heart_life': pygame.transform.scale(load_image('heart_life.png'), (60, 50)),
     'heart_half': pygame.transform.scale(load_image('heart_half.png'), (60, 50)),
     'heart_died': pygame.transform.scale(load_image('heart_died.png'), (60, 50)),
-    'apple': pygame.transform.scale(load_image('apple.png'), (25, 25))
+    'apple': pygame.transform.scale(load_image('apple.png'), (25, 25)),
+    'gold_apple': pygame.transform.scale(load_image('gold_apple.png'), (30, 30))
 }
 player_image = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (50, 60))
 tile_width = tile_height = 100
@@ -139,6 +140,12 @@ class Player(pygame.sprite.Sprite):
                 if sprite.image == tile_images["apple"]:
                     if self.hit_point < 5:
                         self.hit_point += 0.5
+                        sprite.kill()
+                elif sprite.image == tile_images['gold_apple']:
+                    if self.hit_point < 5:
+                        self.hit_point += 1
+                        if self.hit_point > 5:
+                            self.hit_point = 5
                         sprite.kill()
                 elif sprite.image in (tile_images["stone"], tile_images["tree"],
                                     tile_images["fence"], tile_images["home"],
@@ -253,8 +260,12 @@ def generate_level(level):
             elif level[y][x] == '_':
                 Tile('spawn_two', x, y)
             elif level[y][x] == '%':
-                apple_ex = Tile('apple', x, y)
-                apple_ex.update(random.randint(0, 75), random.randint(0, 75))
+                if random.randint(1, 5) == 2:
+                    apple_ex = Tile('gold_apple', x, y)
+                    apple_ex.update(random.randint(0, 70), random.randint(0, 70))
+                else:
+                    apple_ex = Tile('apple', x, y)
+                    apple_ex.update(random.randint(0, 75), random.randint(0, 75))
 
     return new_player
 
