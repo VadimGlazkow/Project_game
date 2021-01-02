@@ -2,6 +2,7 @@ import pygame
 import sys
 import os
 import random
+import time
 
 FPS = 60
 WIDTH, HEIGHT = 1280, 720
@@ -108,7 +109,8 @@ class Player(pygame.sprite.Sprite):
             "right": AnimatedSprite(pygame.transform.scale(load_image("hero_right.png", "heros"),
                                                                 (900, 100)), 9, 1, 0, 0)
         }
-
+        self.died = AnimatedSprite(pygame.transform.scale(load_image("died.png", "heros"),
+                                                       (900, 100)), 8, 1, 0, 0)
         self.dict_hit_hero = {
             "up": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_up.png", "heros"),
                                                         (600, 100)), 6, 1, 0, 0),
@@ -137,6 +139,15 @@ class Player(pygame.sprite.Sprite):
             fotos = len(self.dict_hit_hero[self.direction].frames) - 1
             if self.dict_hit_hero[self.direction].cur_frame == fotos:
                 self.move = "stop"
+        elif self.move == 'died':
+            self.image = self.died.image
+
+            self.died.update()
+            fotos = len(self.died.frames) - 1
+            if self.died.cur_frame == fotos:
+                pygame.mixer.music.pause()
+                time.sleep(1)
+                game(level)
 
         self.mask = pygame.mask.from_surface(self.image)
 
@@ -444,6 +455,10 @@ def game(level):
         if list_side:
             player.direction = list_side[-1]
 
+        if player.hit_point <= 0:
+            player.move = 'died'
+            player.update()
+
         camera.update(player)
         for sprite in all_sprites:
             camera.apply(sprite)
@@ -459,6 +474,7 @@ def game(level):
 
 name_map = "map.txt"
 try:
-    game(load_level(name_map))
+    level = load_level(name_map)
+    game(level)
 except FileNotFoundError:
     print(f"Карты {name_map} не существует")
