@@ -86,7 +86,7 @@ class Player(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.hit_point = 2.5
         self.eat_sing = pygame.mixer.Sound('Sing\eat.wav')
-        self.eat_sing.set_volume(0.1)
+        self.eat_sing.set_volume(0.4)
         self.eat_gold_sing = pygame.mixer.Sound('Sing\gold.wav')
         self.dict_stop_hero = {
             "up": pygame.transform.scale(load_image("hero_stand_up.png", "heros"), (100, 100)),
