@@ -276,7 +276,7 @@ def start_game(screen):
     start_btn = Button(tile_images['Start_click'], tile_images['Start_onclick'])
     quit_btn = Button(tile_images['quit_click'], tile_images['quit_onclick'])
     pygame.mouse.set_visible(False)
-    image_mouse = pygame.transform.scale(load_image("mouse.png", "Start_menu"), (20, 20))
+    image_mouse = load_image("mouse.png", "Start_menu")
     cor_mouse = 0, 0
     while run:
         for event in pygame.event.get():
