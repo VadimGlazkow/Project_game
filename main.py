@@ -160,8 +160,8 @@ class Player(pygame.sprite.Sprite):
                     if self.move != "hit":
                         if self.hit_point < 5:
                             self.hit_point += 0.5
-                            self.eat_sing.play()
                             sprite.image = tile_images['none']
+                            self.eat_sing.play()
                     else:
                         sprite.image = tile_images['none']
                         self.apple_hit.play()
@@ -171,8 +171,8 @@ class Player(pygame.sprite.Sprite):
                             self.hit_point += 1
                             if self.hit_point > 5:
                                 self.hit_point = 5
-                            self.eat_gold_sing.play()
                             sprite.image = tile_images['none']
+                            self.eat_gold_sing.play()
                     else:
                         sprite.image = tile_images['none']
                         self.apple_hit.play()
@@ -316,16 +316,14 @@ def generate_level(level):
 
 def make_new_apple():
     for sprite in all_sprites:
-        print(sprite.image)
         if sprite.image == tile_images['none']:
             number = random.randint(1, 5)
             if number == 1:
-                sprite.image = tile_images['gold_apple']
+                sprite.image = tile_images["gold_apple"]
             elif number == 2:
-                sprite.image = tile_images['apple_dark']
+                sprite.image = tile_images["apple_dark"]
             else:
-                sprite.image = tile_images['apple']
-
+                sprite.image = tile_images["apple"]
 
 
 class Button:
@@ -386,6 +384,7 @@ def life_point(screen, hit_point):
         if hit_point1 == 0.5:
             screen.blit(tile_images['heart_half'], (x + i * 50, y))
         hit_point1 -= 1
+
 
 def game(level):
     pygame.init()
@@ -483,15 +482,14 @@ def game(level):
             camera.apply(sprite)
 
         now_time = dt.datetime.now()
-        print((dt.datetime.now() - time_spawn_apple).seconds)
         if (dt.datetime.now() - time_spawn_apple).seconds >= 60:
             make_new_apple()
             time_spawn_apple = now_time
+
         all_sprites.draw(screen)
         tiles_group.draw(screen)
         player_group.draw(screen)
         life_point(screen, player.hit_point)
-
 
         pygame.display.flip()
         clock.tick(FPS)
