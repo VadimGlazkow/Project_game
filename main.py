@@ -3,6 +3,7 @@ import sys
 import os
 import random
 import time
+import datetime as dt
 
 FPS = 60
 WIDTH, HEIGHT = 1280, 720
@@ -310,7 +311,23 @@ def generate_level(level):
                     apple_ex = Tile('apple', x, y)
                     apple_ex.update(random.randint(0, 75), random.randint(0, 75))
 
-    return new_player
+    return new_player, dt.datetime.now()
+
+
+def make_new_apple(level):
+    for y in range(len(level) - 2, -1, -1):
+        for x in range(len(level[y]) - 1, -1, -1):
+            if level[y][x] == '%':
+                number = random.randint(1, 5)
+                if number == 1:
+                    apple_ex = Tile('gold_apple', x, y)
+                    apple_ex.update(random.randint(0, 70), random.randint(0, 70))
+                elif number == 2:
+                    apple_ex = Tile('apple_dark', x, y)
+                    apple_ex.update(random.randint(0, 75), random.randint(0, 75))
+                else:
+                    apple_ex = Tile('apple', x, y)
+                    apple_ex.update(random.randint(0, 75), random.randint(0, 75))
 
 
 class Button:
@@ -392,7 +409,7 @@ def game(level):
     list_side = []
     hit_sing = pygame.mixer.Sound('Sing\sing_hit.wav')
     go_sing = pygame.mixer.Sound('Sing\go_sing.wav')
-    player = generate_level(level)
+    player, time_spawn_apple = generate_level(level)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -437,7 +454,7 @@ def game(level):
         for straw in dict_go:
             bool, value = dict_go[straw]
             if bool and not shift:
-                if command % 2 == 0:
+                if command % 9 == 0:
                     go_sing.play()
                 player.update(*value)
                 command += 1
@@ -471,6 +488,12 @@ def game(level):
         tiles_group.draw(screen)
         player_group.draw(screen)
         life_point(screen, player.hit_point)
+
+        now_time = dt.datetime.now()
+        print((dt.datetime.now() - time_spawn_apple).seconds)
+        if (dt.datetime.now() - time_spawn_apple).seconds >= 60:
+            make_new_apple(level)
+            time_spawn_apple = now_time
 
         pygame.display.flip()
         clock.tick(FPS)
