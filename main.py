@@ -485,7 +485,7 @@ def game(level):
             camera.apply(sprite)
 
         now_time = dt.datetime.now()
-        if (dt.datetime.now() - time_spawn_apple).seconds >= 5:
+        if (dt.datetime.now() - time_spawn_apple).seconds >= 60:
             make_new_apple()
             time_spawn_apple = now_time
 
