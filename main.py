@@ -74,6 +74,7 @@ class Tile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
         self.mask = pygame.mask.from_surface(self.image)
+        self.spawn = True
 
     def update(self, maybe_x=0, maybe_y=0):
         self.rect.x += maybe_x
@@ -310,13 +311,15 @@ def generate_level(level):
                 else:
                     apple_ex = Tile('apple', x, y)
                     apple_ex.update(random.randint(0, 75), random.randint(0, 75))
+                if (x, y) == (23, 9):
+                    apple_ex.spawn = False
 
     return new_player, dt.datetime.now()
 
 
 def make_new_apple():
     for sprite in all_sprites:
-        if sprite.image == tile_images['none']:
+        if sprite.image == tile_images['none'] and sprite.spawn:
             number = random.randint(1, 5)
             if number == 1:
                 sprite.image = tile_images["gold_apple"]
@@ -482,7 +485,7 @@ def game(level):
             camera.apply(sprite)
 
         now_time = dt.datetime.now()
-        if (dt.datetime.now() - time_spawn_apple).seconds >= 60:
+        if (dt.datetime.now() - time_spawn_apple).seconds >= 5:
             make_new_apple()
             time_spawn_apple = now_time
 
