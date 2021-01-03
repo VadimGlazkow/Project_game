@@ -53,8 +53,8 @@ tile_images = {
     'heart_died': pygame.transform.scale(load_image('heart_died.png'), (60, 50)),
     'apple': pygame.transform.scale(load_image('apple.png'), (25, 25)),
     'gold_apple': pygame.transform.scale(load_image('gold_apple.png'), (30, 30)),
-    'apple_dark': pygame.transform.scale(load_image('apple_dark.png'), (25, 25))
-
+    'apple_dark': pygame.transform.scale(load_image('apple_dark.png'), (25, 25)),
+    'none': pygame.transform.scale(load_image('none.png'), (25, 25))
 }
 player_image = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (50, 60))
 tile_width = tile_height = 100
@@ -163,7 +163,7 @@ class Player(pygame.sprite.Sprite):
                             sprite.kill()
                             self.eat_sing.play()
                     else:
-                        sprite.kill()
+                        sprite.image = tile_images['none']
                         self.apple_hit.play()
                 elif sprite.image == tile_images['gold_apple']:
                     if self.move != "hit":
@@ -174,7 +174,8 @@ class Player(pygame.sprite.Sprite):
                             sprite.kill()
                             self.eat_gold_sing.play()
                     else:
-                        sprite.kill()
+                        self.kill_object.append(sprite)
+                        sprite.image = tile_images['none']
                         self.apple_hit.play()
                 elif sprite.image == tile_images['apple_dark']:
                     if self.move != "hit":
@@ -314,20 +315,20 @@ def generate_level(level):
     return new_player, dt.datetime.now()
 
 
-def make_new_apple(level):
-    for y in range(len(level) - 2, -1, -1):
-        for x in range(len(level[y]) - 1, -1, -1):
-            if level[y][x] == '%':
-                number = random.randint(1, 5)
-                if number == 1:
-                    apple_ex = Tile('gold_apple', x, y)
-                    apple_ex.update(random.randint(0, 70), random.randint(0, 70))
-                elif number == 2:
-                    apple_ex = Tile('apple_dark', x, y)
-                    apple_ex.update(random.randint(0, 75), random.randint(0, 75))
-                else:
-                    apple_ex = Tile('apple', x, y)
-                    apple_ex.update(random.randint(0, 75), random.randint(0, 75))
+def make_new_apple():
+    for sprite in all_sprites:
+        if sprite.image == tile_images['none']:
+            number = random.randint(1, 5)
+            if number == 1:
+                sprite.image = tile_images['gold_apple']
+                sprite.update(random.randint(0, 70), random.randint(0, 70))
+            elif number == 2:
+                sprite.image = tile_images['apple_dark']
+                sprite.update(random.randint(0, 75), random.randint(0, 75))
+            else:
+                sprite.image = tile_images['apple']
+                sprite.update(random.randint(0, 75), random.randint(0, 75))
+
 
 
 class Button:
@@ -484,16 +485,16 @@ def game(level):
         for sprite in all_sprites:
             camera.apply(sprite)
 
+        now_time = dt.datetime.now()
+        print((dt.datetime.now() - time_spawn_apple).seconds)
+        if (dt.datetime.now() - time_spawn_apple).seconds >= 3:
+            make_new_apple()
+            time_spawn_apple = now_time
         all_sprites.draw(screen)
         tiles_group.draw(screen)
         player_group.draw(screen)
         life_point(screen, player.hit_point)
 
-        now_time = dt.datetime.now()
-        print((dt.datetime.now() - time_spawn_apple).seconds)
-        if (dt.datetime.now() - time_spawn_apple).seconds >= 60:
-            make_new_apple(level)
-            time_spawn_apple = now_time
 
         pygame.display.flip()
         clock.tick(FPS)
