@@ -302,7 +302,10 @@ def generate_level(level):
                 Tile('spawn_two', x, y)
             elif level[y][x] == '%':
                 number = random.randint(1, 5)
-                if number == 1:
+                if (x, y) == (23, 9):
+                    apple_ex = Tile('apple', x, y)
+                    apple_ex.spawn = False
+                elif number == 1:
                     apple_ex = Tile('gold_apple', x, y)
                     apple_ex.update(random.randint(0, 70), random.randint(0, 70))
                 elif number == 2:
@@ -311,8 +314,6 @@ def generate_level(level):
                 else:
                     apple_ex = Tile('apple', x, y)
                     apple_ex.update(random.randint(0, 75), random.randint(0, 75))
-                if (x, y) == (23, 9):
-                    apple_ex.spawn = False
 
     return new_player, dt.datetime.now()
 
