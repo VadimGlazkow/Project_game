@@ -318,6 +318,7 @@ def generate_level(level):
 def make_new_apple():
     for sprite in all_sprites:
         if sprite.image == tile_images['none']:
+            print(1000)
             number = random.randint(1, 5)
             if number == 1:
                 sprite.image = tile_images['gold_apple']
