@@ -304,6 +304,7 @@ def generate_level(level):
                 number = random.randint(1, 5)
                 if (x, y) == (23, 9):
                     apple_ex = Tile('apple', x, y)
+                    apple_ex.update(random.randint(0, 75), random.randint(0, 75))
                     apple_ex.spawn = False
                 elif number == 1:
                     apple_ex = Tile('gold_apple', x, y)
