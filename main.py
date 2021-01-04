@@ -278,20 +278,18 @@ class Opponents(pygame.sprite.Sprite):
         self.move = "go"
         self.direction = "down"
 
-    def update(self, speed=tile_width // 25):
-        num1 = random.randint(-1, 1)
-        num2 = random.randint(-1, 1)
-        if num1:
-            self.rect.x += 10
-            self.direction = 'right'
-        elif num1 == 0:
-            self.rect.x -= 10
-            self.direction = 'left'
-        if num2:
-            self.rect.y += 10
-            self.direction = 'up'
-        elif num2 == 0:
-            self.rect.y -= 10
+    def update(self, target, speed=tile_width // 25):
+        if self.rect.x > target.rect.x:
+            self.rect.x -= speed
+            self.direction = "left"
+        elif self.rect.x < target.rect.x:
+            self.rect.x += speed
+            self.direction = "right"
+        if self.rect.y > target.rect.y:
+            self.rect.y -= speed
+            self.direction = "up"
+        elif self.rect.y < target.rect.y:
+            self.rect.y += speed
             self.direction = "down"
 
         if self.move == "go":
@@ -357,14 +355,20 @@ class Opponents(pygame.sprite.Sprite):
                     collect = True
                     break
         if collect:
-            if num1:
-                self.rect.x -= 10
-            else:
-                self.rect.x += 10
-            if num2:
-                self.rect.y -= 10
-            else:
-                self.rect.y += 10
+            """if self.rect.x > target.rect.x:
+                self.rect.x += speed + 10
+                self.direction = "left"
+            elif self.rect.x < target.rect.x:
+                self.rect.x -= speed + 10
+                self.direction = "right"
+
+            if self.rect.y > target.rect.y:
+                self.rect.y += speed + 10
+                self.direction = "up"
+            elif self.rect.y < target.rect.y:
+                self.rect.y -= speed + 10
+                self.direction = "down"""
+            pass
 
         new_x, new_y = SIZE_HERO
 
@@ -669,7 +673,7 @@ def game(level):
             num_ran = random.randint(0, 2)
             Opponents(cord_spawn[num_ran])
         for sprite in opponents:
-            sprite.update()
+            sprite.update(player)
 
         all_sprites.draw(screen)
         tiles_group.draw(screen)
