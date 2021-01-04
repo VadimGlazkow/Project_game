@@ -167,11 +167,11 @@ class Player(pygame.sprite.Sprite):
         time_new_hit = dt.datetime.now()
         for sprite in opponents:
             if pygame.sprite.collide_mask(self, sprite):
-                if self.move != "hit" and (time_new_hit - self.hit_time).seconds >= 1:
+                if self.move != "hit" and (time_new_hit - self.hit_time).seconds >= 2:
                     self.hit_point -= 1
                     self.hit_time = time_new_hit
                 elif self.move == 'hit':
-                    sprite.hit_point -= 0.3
+                    sprite.hit_point -= 1
 
         for sprite in tiles_group:
             if pygame.sprite.collide_mask(self, sprite):
