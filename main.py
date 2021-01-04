@@ -87,6 +87,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(player_group, all_sprites)
         self.image = player_image
+        self.hit_time = dt.datetime.now()
         self.cor_x, self.cor_y = pos_x, pos_y
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
@@ -153,6 +154,7 @@ class Player(pygame.sprite.Sprite):
             self.died.update()
             fotos = len(self.died.frames) - 1
             if self.died.cur_frame == fotos:
+                self.died_sing.play()
                 pygame.mixer.music.pause()
                 time.sleep(1)
                 game(level)
@@ -160,12 +162,14 @@ class Player(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
         collect = False
+        time_new_hit = dt.datetime.now()
         for sprite in opponents:
             if pygame.sprite.collide_mask(self, sprite):
-                if self.move != "hit":
-                    sprite.hit_point -= 0.5
-                else:
-                    self.hit_point -= 0.1
+                if self.move != "hit" and (time_new_hit - self.hit_time).seconds >= 2:
+                    self.hit_point -= 1
+                    self.hit_time = time_new_hit
+                elif self.move == 'hit':
+                    sprite.hit_point -= 0.1
 
         for sprite in tiles_group:
             if pygame.sprite.collide_mask(self, sprite):
@@ -408,6 +412,8 @@ class Opponents(pygame.sprite.Sprite):
             self.died.update()
             fotos = len(self.died.frames) - 1
             if self.died.cur_frame == fotos:
+                if 1280 > self.rect.x > 0 and 720 > self.rect.y > 0:
+                    self.died_sing.play()
                 self.kill()
 
 
