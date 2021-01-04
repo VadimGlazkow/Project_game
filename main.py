@@ -235,15 +235,162 @@ class Player(pygame.sprite.Sprite):
 class Opponents(pygame.sprite.Sprite):
     def __init__(self, rect):
         super().__init__(opponents, all_sprites)
-        self.image = player_image
         self.rect = rect.copy()
         self.rect.x -= 1500
         self.rect.y -= 300
+        self.image = player_image
+        self.mask = pygame.mask.from_surface(self.image)
+        self.hit_point = 2.5
+        self.eat_sing = pygame.mixer.Sound('Sing\eat.wav')
+        self.eat_sing.set_volume(0.4)
+        self.eat_gold_sing = pygame.mixer.Sound('Sing\gold.wav')
+        self.apple_hit = pygame.mixer.Sound('Sing\/apple_hit.wav')
+        self.died_sing = pygame.mixer.Sound('Sing\/died.wav')
+        self.dict_stop_hero = {
+            "up": pygame.transform.scale(load_image("hero_stand_up.png", "heros"), (100, 100)),
+            "down": pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (100, 100)),
+            "right": pygame.transform.scale(load_image("hero_stand_right.png", "heros"), (100, 100))
+        }
+        self.dict_stop_hero["left"] = pygame.transform.flip(self.dict_stop_hero["right"], True, False)
+
+        self.dict_go_hero = {
+            "up": AnimatedSprite(pygame.transform.scale(load_image("hero_up.png", "heros"),
+                                                        (900, 100)), 9, 1, 0, 0),
+            "down": AnimatedSprite(pygame.transform.scale(load_image("hero_down.png", "heros"),
+                                                          (900, 100)), 9, 1, 0, 0),
+            "left": AnimatedSprite(pygame.transform.scale(load_image("hero_left.png", "heros"),
+                                                          (900, 100)), 9, 1, 0, 0),
+            "right": AnimatedSprite(pygame.transform.scale(load_image("hero_right.png", "heros"),
+                                                           (900, 100)), 9, 1, 0, 0)
+        }
+        self.died = AnimatedSprite(pygame.transform.scale(load_image("died.png", "heros"),
+                                                          (900, 100)), 8, 1, 0, 0)
+        self.dict_hit_hero = {
+            "up": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_up.png", "heros"),
+                                                        (600, 100)), 6, 1, 0, 0),
+            "down": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_down.png", "heros"),
+                                                          (700, 100)), 7, 1, 0, 0),
+            "left": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_left.png", "heros"),
+                                                          (700, 100)), 7, 1, 0, 0),
+            "right": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_right.png", "heros"),
+                                                           (700, 100)), 7, 1, 0, 0)
+        }
+        self.move = "go"
+        self.direction = "down"
+
+    def update(self, speed=tile_width // 25):
+        num1 = random.randint(-1, 1)
+        num2 = random.randint(-1, 1)
+        if num1:
+            self.rect.x += 10
+            self.direction = 'right'
+        elif num1 == 0:
+            self.rect.x -= 10
+            self.direction = 'left'
+        if num2:
+            self.rect.y += 10
+            self.direction = 'up'
+        elif num2 == 0:
+            self.rect.y -= 10
+            self.direction = "down"
+
+        if self.move == "go":
+            self.image = self.dict_go_hero[self.direction].image
+            self.dict_go_hero[self.direction].update()
+        elif self.move == "stop":
+            self.image = self.dict_stop_hero[self.direction]
+        elif self.move == "hit":
+            self.image = self.dict_hit_hero[self.direction].image
+            self.dict_hit_hero[self.direction].update()
+            fotos = len(self.dict_hit_hero[self.direction].frames) - 1
+            if self.dict_hit_hero[self.direction].cur_frame == fotos:
+                self.move = "stop"
+        elif self.move == 'died':
+            self.image = self.died.image
+
+            self.died.update()
+            fotos = len(self.died.frames) - 1
+            if self.died.cur_frame == fotos:
+                pygame.mixer.music.pause()
+                time.sleep(1)
+                game(level)
+
         self.mask = pygame.mask.from_surface(self.image)
 
-    def update(self):
-        self.rect.x += 10
-        self.rect.y += 10
+        collect = False
+        for sprite in tiles_group:
+            if pygame.sprite.collide_mask(self, sprite):
+                if sprite.image == tile_images["apple"]:
+                    if self.move != "hit":
+                        if self.hit_point < 5:
+                            self.hit_point += 0.5
+                            sprite.image = tile_images['none']
+                            self.eat_sing.play()
+                    else:
+                        sprite.image = tile_images['none']
+                        self.apple_hit.play()
+                elif sprite.image == tile_images['gold_apple']:
+                    if self.move != "hit":
+                        if self.hit_point < 5:
+                            self.hit_point += 1
+                            if self.hit_point > 5:
+                                self.hit_point = 5
+                            sprite.image = tile_images['none']
+                            self.eat_gold_sing.play()
+                    else:
+                        sprite.image = tile_images['none']
+                        self.apple_hit.play()
+                elif sprite.image == tile_images['apple_dark']:
+                    if self.move != "hit":
+                        self.hit_point -= 1
+                        sprite.image = tile_images['none']
+                        if self.hit_point > 0:
+                            self.eat_sing.play()
+                        else:
+                            self.died_sing.play()
+                    else:
+                        sprite.image = tile_images['none']
+                        self.apple_hit.play()
+                elif sprite.image in (tile_images["stone"], tile_images["tree"],
+                                      tile_images["fence"], tile_images["home"],
+                                      tile_images["spawn_one"], tile_images["spawn_two"]):
+                    collect = True
+                    break
+        if collect:
+            if num1:
+                self.rect.x -= 10
+            else:
+                self.rect.x += 10
+            if num2:
+                self.rect.y -= 10
+            else:
+                self.rect.y += 10
+
+        new_x, new_y = SIZE_HERO
+
+        self.rect.x += int(new_x * 1.5)
+        if pygame.sprite.spritecollideany(self, tiles_group):
+            self.rect.x -= int(new_x * 1.5)
+        else:
+            self.rect.x -= int(new_x * 1.5) + speed
+
+        self.rect.x -= int(new_x * 0.5)
+        if pygame.sprite.spritecollideany(self, tiles_group):
+            self.rect.x += int(new_x * 0.5)
+        else:
+            self.rect.x += int(new_x * 0.5) + speed
+
+        self.rect.y += int(new_y * 1.3)
+        if pygame.sprite.spritecollideany(self, tiles_group):
+            self.rect.y -= int(new_y * 1.3)
+        else:
+            self.rect.y -= int(new_y * 1.3) + speed
+
+        self.rect.y -= int(new_y * 0.6)
+        if pygame.sprite.spritecollideany(self, tiles_group):
+            self.rect.y += int(new_y * 0.6)
+        else:
+            self.rect.y += int(new_y * 0.6) + speed
 
 
 class AnimatedSprite(pygame.sprite.Sprite):
