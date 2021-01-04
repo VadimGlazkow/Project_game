@@ -56,12 +56,14 @@ tile_images = {
     'apple_dark': pygame.transform.scale(load_image('apple_dark.png'), (25, 25)),
     'none': pygame.transform.scale(load_image('none.png'), (25, 25))
 }
-player_image = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (50, 60))
+player_image = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (100, 100))
 tile_width = tile_height = 100
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 animation_group = pygame.sprite.Group()
+opponents = pygame.sprite.Group()
+cord_spawn = []
 
 
 class Tile(pygame.sprite.Sprite):
@@ -130,6 +132,9 @@ class Player(pygame.sprite.Sprite):
     def update(self, maybe_x=0, maybe_y=0, speed=tile_width // 25):
         self.rect.x += maybe_x
         self.rect.y += maybe_y
+        for i in range(len(cord_spawn)):
+            cord_spawn[i].x += maybe_x * -1
+            cord_spawn[i].y += maybe_y * -1
 
         if self.move == "go":
             self.image = self.dict_go_hero[self.direction].image
@@ -196,6 +201,9 @@ class Player(pygame.sprite.Sprite):
         if collect:
             self.rect.x -= maybe_x
             self.rect.y -= maybe_y
+            for i in range(len(cord_spawn)):
+                cord_spawn[i].x += maybe_x
+                cord_spawn[i].y += maybe_y
 
         new_x, new_y = SIZE_HERO
 
@@ -222,6 +230,20 @@ class Player(pygame.sprite.Sprite):
             self.rect.y += int(new_y * 0.6)
         else:
             self.rect.y += int(new_y * 0.6) + speed
+
+
+class Opponents(pygame.sprite.Sprite):
+    def __init__(self, rect):
+        super().__init__(opponents, all_sprites)
+        self.image = player_image
+        self.rect = rect.copy()
+        self.rect.x -= 1500
+        self.rect.y -= 300
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        self.rect.x += 10
+        self.rect.y += 10
 
 
 class AnimatedSprite(pygame.sprite.Sprite):
@@ -297,9 +319,13 @@ def generate_level(level):
             elif level[y][x] == '&':
                 Tile('home', x, y)
             elif level[y][x] == '-':
-                Tile('spawn_one', x, y)
+                spawn = Tile('spawn_one', x, y)
+                spawn = spawn.rect.copy()
+                spawn.x -= 300
+                cord_spawn.append(spawn)
             elif level[y][x] == '_':
-                Tile('spawn_two', x, y)
+                spawn = Tile('spawn_two', x, y)
+                cord_spawn.append(spawn.rect.copy())
             elif level[y][x] == '%':
                 number = random.randint(1, 5)
                 if (x, y) == (23, 9):
@@ -412,6 +438,7 @@ def game(level):
     hit_sing = pygame.mixer.Sound('Sing\sing_hit.wav')
     go_sing = pygame.mixer.Sound('Sing\go_sing.wav')
     player, time_spawn_apple = generate_level(level)
+    time_monster = dt.datetime.now()
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -490,10 +517,17 @@ def game(level):
         if (dt.datetime.now() - time_spawn_apple).seconds >= 60:
             make_new_apple()
             time_spawn_apple = now_time
+        if (dt.datetime.now() - time_monster).seconds >= 5:
+            time_monster = dt.datetime.now()
+            num_ran = random.randint(0, 2)
+            Opponents(cord_spawn[num_ran])
+        for sprite in opponents:
+            sprite.update()
 
         all_sprites.draw(screen)
         tiles_group.draw(screen)
         player_group.draw(screen)
+        opponents.draw(screen)
         life_point(screen, player.hit_point)
 
         pygame.display.flip()
