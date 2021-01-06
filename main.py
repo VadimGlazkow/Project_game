@@ -26,7 +26,12 @@ tile_images = {
     'grass': pygame.transform.scale(load_image('grass.png'), (100, 100)),
     'home': pygame.transform.scale(load_image('home.jpg'), (200, 200)),
     'spawn_one': pygame.transform.scale(load_image('spawn.png'), (200, 300)),
-    'spawn_two': pygame.transform.flip(pygame.transform.scale(load_image('spawn.png'),
+    'spawn_two_1': pygame.transform.flip(pygame.transform.scale(load_image('spawn.png'),
+                                                              (200, 300)), True, False),
+    'spawn_two_2': pygame.transform.flip(pygame.transform.scale(load_image('spawn.png'),
+                                                              (200, 300)), True, False),
+    'spawn_close_one': pygame.transform.scale(load_image('spawn_close.png'), (200, 300)),
+    'spawn_close_two': pygame.transform.flip(pygame.transform.scale(load_image('spawn_close.png'),
                                                               (200, 300)), True, False),
     'flower_one': pygame.transform.scale(load_image('flower_one.png'), (50, 50)),
     'flower_two': pygame.transform.scale(load_image('flower_two.png'), (50, 50)),
@@ -72,6 +77,7 @@ class Tile(pygame.sprite.Sprite):
             super().__init__(all_sprites)
         else:
             super().__init__(tiles_group, all_sprites)
+        self.hit_point_object = 20
         self.image = tile_images[tile_type]
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
@@ -134,8 +140,9 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += maybe_x
         self.rect.y += maybe_y
         for i in range(len(cord_spawn)):
-            cord_spawn[i].x += maybe_x * -1
-            cord_spawn[i].y += maybe_y * -1
+            if cord_spawn[i] is not None:
+                cord_spawn[i].x += maybe_x * -1
+                cord_spawn[i].y += maybe_y * -1
 
         if self.move == "go":
             self.image = self.dict_go_hero[self.direction].image
@@ -207,16 +214,38 @@ class Player(pygame.sprite.Sprite):
                         sprite.image = tile_images['none']
                         self.apple_hit.play()
                 elif sprite.image in (tile_images["stone"], tile_images["tree"],
-                                    tile_images["fence"], tile_images["home"],
-                                    tile_images["spawn_one"], tile_images["spawn_two"]):
+                                    tile_images["fence"], tile_images["home"]):
                     collect = True
                     break
+                if sprite.image == tile_images['spawn_one'] and sprite.hit_point_object > 0:
+                    sprite.hit_point_object -= 0.5
+                    if sprite.hit_point_object <= 0:
+                        sprite.image = tile_images['spawn_close_one']
+                        cord_spawn[0] = None
+                    collect = True
+                    break
+                if sprite.image == tile_images['spawn_two_1'] and sprite.hit_point_object > 0:
+                    sprite.hit_point_object -= 0.5
+                    if sprite.hit_point_object <= 0:
+                        sprite.image = tile_images['spawn_close_two']
+                        cord_spawn[1] = None
+                    collect = True
+                    break
+                if sprite.image == tile_images['spawn_two_2'] and sprite.hit_point_object > 0:
+                    sprite.hit_point_object -= 0.5
+                    if sprite.hit_point_object <= 0:
+                        sprite.image = tile_images['spawn_close_two']
+                        cord_spawn[2] = None
+                    collect = True
+                    break
+
         if collect:
             self.rect.x -= maybe_x
             self.rect.y -= maybe_y
             for i in range(len(cord_spawn)):
-                cord_spawn[i].x += maybe_x
-                cord_spawn[i].y += maybe_y
+                if cord_spawn[i] is not None:
+                    cord_spawn[i].x += maybe_x
+                    cord_spawn[i].y += maybe_y
 
         new_x, new_y = SIZE_HERO
 
@@ -363,7 +392,8 @@ class Opponents(pygame.sprite.Sprite):
                                 self.apple_hit.play()
                     elif sprite.image in (tile_images["stone"], tile_images["tree"],
                                           tile_images["fence"], tile_images["home"],
-                                          tile_images["spawn_one"], tile_images["spawn_two"]):
+                                          tile_images["spawn_one"], tile_images["spawn_two_1"],
+                                          tile_images["spawn_two_2"]):
                         collect = True
                         break
             if collect:
@@ -497,7 +527,10 @@ def generate_level(level):
                 spawn.x -= 300
                 cord_spawn.append(spawn)
             elif level[y][x] == '_':
-                spawn = Tile('spawn_two', x, y)
+                spawn = Tile('spawn_two_1', x, y)
+                cord_spawn.append(spawn.rect.copy())
+            elif level[y][x] == '/':
+                spawn = Tile('spawn_two_2', x, y)
                 cord_spawn.append(spawn.rect.copy())
             elif level[y][x] == '%':
                 number = random.randint(1, 5)
@@ -690,9 +723,14 @@ def game(level):
         if (dt.datetime.now() - time_spawn_apple).seconds >= 60:
             make_new_apple()
             time_spawn_apple = now_time
-        if (dt.datetime.now() - time_monster).seconds >= 5:
+        if cord_spawn[2] == cord_spawn[1] == cord_spawn[0]:
+            terminate()
+            game_final()
+        if (dt.datetime.now() - time_monster).seconds >= 10:
             time_monster = dt.datetime.now()
             num_ran = random.randint(0, 2)
+            while cord_spawn[num_ran] == None:
+                num_ran = random.randint(0, len(cord_spawn) - 1)
             Opponents(cord_spawn[num_ran])
         for sprite in opponents:
             sprite.update(player)
