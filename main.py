@@ -30,9 +30,6 @@ tile_images = {
                                                               (200, 300)), True, False),
     'spawn_two_2': pygame.transform.flip(pygame.transform.scale(load_image('spawn.png'),
                                                               (200, 300)), True, False),
-    'spawn_close_one': pygame.transform.scale(load_image('spawn_close.png'), (200, 300)),
-    'spawn_close_two': pygame.transform.flip(pygame.transform.scale(load_image('spawn_close.png'),
-                                                              (200, 300)), True, False),
     'flower_one': pygame.transform.scale(load_image('flower_one.png'), (50, 50)),
     'flower_two': pygame.transform.scale(load_image('flower_two.png'), (50, 50)),
     'flower_three': pygame.transform.scale(load_image('flower_three.png'), (50, 50)),
@@ -217,24 +214,26 @@ class Player(pygame.sprite.Sprite):
                                     tile_images["fence"], tile_images["home"]):
                     collect = True
                     break
-                if sprite.image == tile_images['spawn_one'] and sprite.hit_point_object > 0:
+                if sprite.image == tile_images['spawn_one'] and sprite.hit_point_object > 0\
+                            and self.move == 'hit':
                     sprite.hit_point_object -= 0.5
                     if sprite.hit_point_object <= 0:
-                        sprite.image = tile_images['spawn_close_one']
+                        sprite.kill()
                         cord_spawn[0] = None
                     collect = True
                     break
-                if sprite.image == tile_images['spawn_two_1'] and sprite.hit_point_object > 0:
+                if sprite.image == tile_images['spawn_two_1'] and sprite.hit_point_object > 0\
+                            and self.move == 'hit':
                     sprite.hit_point_object -= 0.5
                     if sprite.hit_point_object <= 0:
-                        sprite.image = tile_images['spawn_close_two']
+                        sprite.kill()
                         cord_spawn[1] = None
                     collect = True
                     break
-                if sprite.image == tile_images['spawn_two_2'] and sprite.hit_point_object > 0:
+                if sprite.image == tile_images['spawn_two_2'] and sprite.hit_point_object > 0\
+                            and self.move == 'hit':
                     sprite.hit_point_object -= 0.5
                     if sprite.hit_point_object <= 0:
-                        sprite.image = tile_images['spawn_close_two']
                         cord_spawn[2] = None
                     collect = True
                     break
