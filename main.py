@@ -211,31 +211,29 @@ class Player(pygame.sprite.Sprite):
                         sprite.image = tile_images['none']
                         self.apple_hit.play()
                 elif sprite.image in (tile_images["stone"], tile_images["tree"],
-                                    tile_images["fence"], tile_images["home"]):
+                                        tile_images["fence"], tile_images["home"],
+                                      tile_images['spawn_one'],  tile_images['spawn_two_1'],
+                                      tile_images['spawn_two_2']):
                     collect = True
-                    break
                 if sprite.image == tile_images['spawn_one'] and sprite.hit_point_object > 0\
                             and self.move == 'hit':
                     sprite.hit_point_object -= 0.5
                     if sprite.hit_point_object <= 0:
                         sprite.kill()
                         cord_spawn[0] = None
-                    collect = True
-                    break
                 if sprite.image == tile_images['spawn_two_1'] and sprite.hit_point_object > 0\
                             and self.move == 'hit':
                     sprite.hit_point_object -= 0.5
                     if sprite.hit_point_object <= 0:
                         sprite.kill()
                         cord_spawn[1] = None
-                    collect = True
-                    break
                 if sprite.image == tile_images['spawn_two_2'] and sprite.hit_point_object > 0\
                             and self.move == 'hit':
                     sprite.hit_point_object -= 0.5
                     if sprite.hit_point_object <= 0:
+                        sprite.kill()
                         cord_spawn[2] = None
-                    collect = True
+                if collect:
                     break
 
         if collect:
