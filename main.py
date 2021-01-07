@@ -90,7 +90,6 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(player_group, all_sprites)
         self.image = player_image
-        self.hit_time = dt.datetime.now()
         self.cor_x, self.cor_y = pos_x, pos_y
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
@@ -171,11 +170,14 @@ class Player(pygame.sprite.Sprite):
         time_new_hit = dt.datetime.now()
         for sprite in opponents:
             if pygame.sprite.collide_mask(self, sprite):
-                if self.move != "hit" and (time_new_hit - self.hit_time).seconds >= 2:
-                    self.hit_point -= 1
-                    self.hit_time = time_new_hit
-                elif self.move == 'hit':
-                    sprite.hit_point -= 1
+                if sprite.hit_time:
+                    if self.move != "hit" and (time_new_hit - sprite.hit_time).seconds >= 2:
+                        self.hit_point -= 1
+                        sprite.hit_time = time_new_hit
+                    elif self.move == 'hit':
+                        sprite.hit_point -= 1
+                else:
+                    sprite.hit_time = dt.datetime.now()
 
         for sprite in tiles_group:
             if pygame.sprite.collide_mask(self, sprite):
@@ -211,24 +213,24 @@ class Player(pygame.sprite.Sprite):
                         sprite.image = tile_images['none']
                         self.apple_hit.play()
                 elif sprite.image in (tile_images["stone"], tile_images["tree"],
-                                        tile_images["fence"], tile_images["home"],
+                                      tile_images["fence"], tile_images["home"],
                                       tile_images['spawn_one'],  tile_images['spawn_two_1'],
                                       tile_images['spawn_two_2']):
                     collect = True
-                if sprite.image == tile_images['spawn_one'] and sprite.hit_point_object > 0\
-                            and self.move == 'hit':
+                if sprite.image == tile_images['spawn_one'] and\
+                        sprite.hit_point_object > 0 and self.move == 'hit':
                     sprite.hit_point_object -= 0.5
                     if sprite.hit_point_object <= 0:
                         sprite.kill()
                         cord_spawn[0] = None
-                if sprite.image == tile_images['spawn_two_1'] and sprite.hit_point_object > 0\
-                            and self.move == 'hit':
+                if sprite.image == tile_images['spawn_two_1'] and\
+                        sprite.hit_point_object > 0 and self.move == 'hit':
                     sprite.hit_point_object -= 0.5
                     if sprite.hit_point_object <= 0:
                         sprite.kill()
                         cord_spawn[1] = None
-                if sprite.image == tile_images['spawn_two_2'] and sprite.hit_point_object > 0\
-                            and self.move == 'hit':
+                if sprite.image == tile_images['spawn_two_2'] and\
+                        sprite.hit_point_object > 0 and self.move == 'hit':
                     sprite.hit_point_object -= 0.5
                     if sprite.hit_point_object <= 0:
                         sprite.kill()
@@ -252,11 +254,11 @@ class Player(pygame.sprite.Sprite):
         else:
             self.rect.x -= int(new_x * 1.5) + speed
 
-        self.rect.x -= int(new_x * 0.5)
+        self.rect.x -= int(new_x * 1.5)
         if pygame.sprite.spritecollideany(self, tiles_group):
-            self.rect.x += int(new_x * 0.5)
+            self.rect.x += int(new_x * 1.5)
         else:
-            self.rect.x += int(new_x * 0.5) + speed
+            self.rect.x += int(new_x * 1.5) + speed
 
         self.rect.y += int(new_y * 1.3)
         if pygame.sprite.spritecollideany(self, tiles_group):
@@ -264,11 +266,11 @@ class Player(pygame.sprite.Sprite):
         else:
             self.rect.y -= int(new_y * 1.3) + speed
 
-        self.rect.y -= int(new_y * 0.6)
+        self.rect.y -= int(new_y * 1.3)
         if pygame.sprite.spritecollideany(self, tiles_group):
-            self.rect.y += int(new_y * 0.6)
+            self.rect.y += int(new_y * 1.3)
         else:
-            self.rect.y += int(new_y * 0.6) + speed
+            self.rect.y += int(new_y * 1.3) + speed
 
 
 class Opponents(pygame.sprite.Sprite):
@@ -303,7 +305,7 @@ class Opponents(pygame.sprite.Sprite):
                                                            (900, 100)), 9, 1, 0, 0)
         }
         self.died = AnimatedSprite(pygame.transform.scale(load_image("died.png", "heros"),
-                                                          (900, 100)), 8, 1, 0, 0)
+                                                     (900, 100)), 8, 1, 0, 0)
         self.dict_hit_hero = {
             "up": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_up.png", "heros"),
                                                         (600, 100)), 6, 1, 0, 0),
@@ -316,6 +318,7 @@ class Opponents(pygame.sprite.Sprite):
         }
         self.move = "go"
         self.direction = "down"
+        self.hit_time = dt.datetime.now()
 
     def update(self, target, speed=tile_width // 25):
         if self.hit_point > 0:
@@ -346,7 +349,6 @@ class Opponents(pygame.sprite.Sprite):
 
             self.mask = pygame.mask.from_surface(self.image)
 
-            collect = False
             for sprite in tiles_group:
                 if pygame.sprite.collide_mask(self, sprite):
                     if sprite.image == tile_images["apple"]:
@@ -391,23 +393,7 @@ class Opponents(pygame.sprite.Sprite):
                                           tile_images["fence"], tile_images["home"],
                                           tile_images["spawn_one"], tile_images["spawn_two_1"],
                                           tile_images["spawn_two_2"]):
-                        collect = True
                         break
-            if collect:
-                """if self.rect.x > target.rect.x:
-                    self.rect.x += speed + 10
-                    self.direction = "left"
-                elif self.rect.x < target.rect.x:
-                    self.rect.x -= speed + 10
-                    self.direction = "right"
-    
-                if self.rect.y > target.rect.y:
-                    self.rect.y += speed + 10
-                    self.direction = "up"
-                elif self.rect.y < target.rect.y:
-                    self.rect.y -= speed + 10
-                    self.direction = "down"""
-                pass
 
             new_x, new_y = SIZE_HERO
 
@@ -417,11 +403,11 @@ class Opponents(pygame.sprite.Sprite):
             else:
                 self.rect.x -= int(new_x * 1.5) + speed
 
-            self.rect.x -= int(new_x * 0.5)
+            self.rect.x -= int(new_x * 1.5)
             if pygame.sprite.spritecollideany(self, tiles_group):
-                self.rect.x += int(new_x * 0.5)
+                self.rect.x += int(new_x * 1.5)
             else:
-                self.rect.x += int(new_x * 0.5) + speed
+                self.rect.x += int(new_x * 1.5) + speed
 
             self.rect.y += int(new_y * 1.3)
             if pygame.sprite.spritecollideany(self, tiles_group):
@@ -429,15 +415,14 @@ class Opponents(pygame.sprite.Sprite):
             else:
                 self.rect.y -= int(new_y * 1.3) + speed
 
-            self.rect.y -= int(new_y * 0.6)
+            self.rect.y -= int(new_y * 1.3)
             if pygame.sprite.spritecollideany(self, tiles_group):
-                self.rect.y += int(new_y * 0.6)
+                self.rect.y += int(new_y * 1.3)
             else:
-                self.rect.y += int(new_y * 0.6) + speed
+                self.rect.y += int(new_y * 1.3) + speed
 
         else:
             self.image = self.died.image
-
             self.died.update()
             fotos = len(self.died.frames) - 1
             if self.died.cur_frame == fotos:
@@ -608,16 +593,15 @@ def start_game(screen):
 
 
 def life_point(screen, hit_point):
-    x, y = 20, 20
-    hit_point1 = hit_point * 1
-    for i in range(5):
-        if hit_point1 > 0.5:
-            screen.blit(tile_images['heart_life'], (x + i * 50, y))
-        if hit_point1 <= 0:
-            screen.blit(tile_images['heart_died'], (x + i * 50, y))
-        if hit_point1 == 0.5:
-            screen.blit(tile_images['heart_half'], (x + i * 50, y))
-        hit_point1 -= 1
+    heart_x, heart_y = 20, 20
+    for heart in range(5):
+        if hit_point > 0.5:
+            screen.blit(tile_images['heart_life'], (heart_x + heart * 50, heart_y))
+        if hit_point <= 0:
+            screen.blit(tile_images['heart_died'], (heart_x + heart * 50, heart_y))
+        if hit_point == 0.5:
+            screen.blit(tile_images['heart_half'], (heart_x + heart * 50, heart_y))
+        hit_point -= 1
 
 
 def game(level):
@@ -723,10 +707,11 @@ def game(level):
         if cord_spawn[2] == cord_spawn[1] == cord_spawn[0]:
             terminate()
             game_final()
-        if (dt.datetime.now() - time_monster).seconds >= 10:
+        if (dt.datetime.now() - time_monster).seconds >= 10 and\
+                len(opponents) <= 20:
             time_monster = dt.datetime.now()
             num_ran = random.randint(0, 2)
-            while cord_spawn[num_ran] == None:
+            while cord_spawn[num_ran] is None:
                 num_ran = random.randint(0, len(cord_spawn) - 1)
             Opponents(cord_spawn[num_ran])
         for sprite in opponents:
