@@ -316,24 +316,158 @@ class Opponents(pygame.sprite.Sprite):
             "right": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_right.png", "heros"),
                                                            (700, 100)), 7, 1, 0, 0)
         }
+        self.dict_cor_walk = {'left': (-tile_width // 25, 0),
+                              'right': (tile_width // 25, 0),
+                              'up': (0, -tile_width // 25),
+                              'down': (0, tile_width // 25)
+                              }
+        self.negative_direct = {'left': 'right', 'right': 'left',
+                                'up': 'down', 'down': 'up'}
+        self.access = {'left': False, 'right': False,
+                       'up': False, 'down': False}
+        self.score = 0
+        self.cor_hero_bot = None
+        self.back_go = False
         self.move = "go"
-        self.direction = "down"
+        self.direction = None
         self.hit_time = dt.datetime.now()
 
+    def check_motion(self):
+        for sprite in tiles_group:
+            if pygame.sprite.collide_mask(self, sprite):
+                if sprite.image in (tile_images["stone"], tile_images["tree"],
+                                    tile_images["fence"], tile_images["home"],
+                                    tile_images['spawn_one'], tile_images['spawn_two_1'],
+                                    tile_images['spawn_two_2']):
+                    return False
+        return True
+
     def update(self, target, speed=tile_width // 25):
+        if self.hit_point > 0 and self.score == 0:
+            self.cor_hero_bot = [(self.rect.x, self.rect.y),
+                                 (target.rect.x, target.rect.y)]
+
+            self.rect.x -= 50
+            self.access['left'] = self.check_motion()
+            self.rect.x += 50
+
+            self.rect.x += 50
+            self.access['right'] = self.check_motion()
+            self.rect.x -= 50
+
+            self.rect.y -= 40
+            self.access['up'] = self.check_motion()
+            self.rect.y += 40
+
+            self.rect.y += 40
+            self.access['down'] = self.check_motion()
+            self.rect.y -= 40
+
+            if self.direction is None:
+                if abs(self.rect.x - target.rect.x) > abs(self.rect.y - target.rect.y):
+                    if self.rect.x > target.rect.x:
+                        self.direction = 'left'
+                    else:
+                        self.direction = 'right'
+                else:
+                    if self.rect.y > target.rect.y:
+                        self.direction = 'up'
+                    else:
+                        self.direction = 'down'
+
+            lst_straw = []
+            for straw in 'left right up down'.split():
+                if straw == self.negative_direct[self.direction]:
+                    if straw in ('left', 'right') and\
+                            self.direction in ('left', 'right'):
+                        if abs(self.rect.y - target.rect.y) <= 20 and\
+                                self.access[self.negative_direct[self.direction]]:
+                            new_straw = self.negative_direct[self.direction]
+                            flag_new_straw = True
+                            if new_straw == 'left':
+                                if self.rect.x < target.rect.x:
+                                    flag_new_straw = False
+                            else:
+                                if self.rect.x > target.rect.x:
+                                    flag_new_straw = False
+                            if flag_new_straw:
+                                self.direction = new_straw
+                                self.back_go = False
+                                break
+                    elif straw in ('up', 'down') and\
+                            self.direction in ('up', 'down'):
+                        if abs(self.rect.x - target.rect.x) <= 25 and\
+                                self.access[self.negative_direct[self.direction]]:
+                            new_straw = self.negative_direct[self.direction]
+                            flag_new_straw = True
+                            if new_straw == 'up':
+                                if self.rect.y < target.rect.y:
+                                    flag_new_straw = False
+                            else:
+                                if self.rect.y > target.rect.y:
+                                    flag_new_straw = False
+                            if flag_new_straw:
+                                self.direction = new_straw
+                                self.back_go = False
+                                break
+                elif straw != self.direction:
+                    if self.access[straw]:
+                        lst_straw.append(straw)
+            dict_cor = {'left': abs(self.cor_hero_bot[0][0] - self.cor_hero_bot[1][0]),
+                        'up': abs(self.cor_hero_bot[0][1] - self.cor_hero_bot[1][1])}
+            dict_cor['right'] = dict_cor['left']
+            dict_cor['down'] = dict_cor['up']
+            if self.back_go:
+                lst_straw = []
+                self.back_go = False
+            if len(lst_straw) == 2:
+                if not self.access[self.direction]:
+                    if lst_straw[0] in ('left', 'right'):
+                        if self.rect.x > target.rect.x:
+                            self.direction = 'left'
+                        else:
+                            self.direction = 'right'
+                    else:
+                        if self.rect.y > target.rect.y:
+                            self.direction = 'up'
+                        else:
+                            self.direction = 'down'
+                else:
+                    if dict_cor[lst_straw[0]] > dict_cor[self.direction]:
+                        if lst_straw[0] in ('left', 'right'):
+                            if self.rect.x > target.rect.x:
+                                self.direction = 'left'
+                            else:
+                                self.direction = 'right'
+                        else:
+                            if self.rect.y > target.rect.y:
+                                self.direction = 'up'
+                            else:
+                                self.direction = 'down'
+            elif len(lst_straw) == 1:
+                if not self.access[self.direction]:
+                    self.direction = lst_straw[0]
+                else:
+                    if dict_cor[lst_straw[0]] > dict_cor[self.direction]:
+                        if lst_straw[0] == 'left':
+                            if self.rect.x > target.rect.x:
+                                self.direction = lst_straw[0]
+                        elif lst_straw[0] == 'right':
+                            if self.rect.x <= target.rect.x:
+                                self.direction = lst_straw[0]
+                        elif lst_straw[0] == 'up':
+                            if self.rect.y > target.rect.y:
+                                self.direction = lst_straw[0]
+                        elif lst_straw[0] == 'down':
+                            if self.rect.y <= target.rect.y:
+                                self.direction = lst_straw[0]
+
+        self.rect.x += self.dict_cor_walk[self.direction][0]
+        self.rect.y += self.dict_cor_walk[self.direction][1]
+        self.score += 1
+        self.score %= 25
+
         if self.hit_point > 0:
-            if self.rect.x > target.rect.x:
-                self.rect.x -= speed
-                self.direction = "left"
-            elif self.rect.x < target.rect.x:
-                self.rect.x += speed
-                self.direction = "right"
-            if self.rect.y > target.rect.y:
-                self.rect.y -= speed
-                self.direction = "up"
-            elif self.rect.y < target.rect.y:
-                self.rect.y += speed
-                self.direction = "down"
 
             if self.move == "go":
                 self.image = self.dict_go_hero[self.direction].image
