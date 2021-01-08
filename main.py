@@ -274,6 +274,14 @@ class Player(pygame.sprite.Sprite):
 
 
 class Opponents(pygame.sprite.Sprite):
+    dict_cor_walk = {'left': (-tile_width // 25, 0),
+                     'right': (tile_width // 25, 0),
+                     'up': (0, -tile_width // 25),
+                     'down': (0, tile_width // 25)
+                          }
+    negative_direct = {'left': 'right', 'right': 'left',
+                       'up': 'down', 'down': 'up'}
+
     def __init__(self, rect):
         super().__init__(opponents, all_sprites)
         self.rect = rect.copy()
@@ -316,13 +324,6 @@ class Opponents(pygame.sprite.Sprite):
             "right": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_right.png", "heros"),
                                                            (700, 100)), 7, 1, 0, 0)
         }
-        self.dict_cor_walk = {'left': (-tile_width // 25, 0),
-                              'right': (tile_width // 25, 0),
-                              'up': (0, -tile_width // 25),
-                              'down': (0, tile_width // 25)
-                              }
-        self.negative_direct = {'left': 'right', 'right': 'left',
-                                'up': 'down', 'down': 'up'}
         self.access = {'left': False, 'right': False,
                        'up': False, 'down': False}
         self.score = 0
@@ -461,11 +462,17 @@ class Opponents(pygame.sprite.Sprite):
                         elif lst_straw[0] == 'down':
                             if self.rect.y <= target.rect.y:
                                 self.direction = lst_straw[0]
+            elif not lst_straw and self.back_go:
+                self.direction = self.negative_direct[self.direction]
 
         self.rect.x += self.dict_cor_walk[self.direction][0]
         self.rect.y += self.dict_cor_walk[self.direction][1]
         self.score += 1
         self.score %= 25
+        if not self.check_motion():
+            self.rect.x -= self.dict_cor_walk[self.direction][0]
+            self.rect.y -= self.dict_cor_walk[self.direction][1]
+            self.score = 0
 
         if self.hit_point > 0:
 
