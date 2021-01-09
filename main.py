@@ -57,7 +57,7 @@ tile_images = {
     'gold_apple': pygame.transform.scale(load_image('gold_apple.png'), (30, 30)),
     'apple_dark': pygame.transform.scale(load_image('apple_dark.png'), (25, 25)),
     'none': pygame.transform.scale(load_image('none.png'), (25, 25)),
-    'logo': load_image('logo8.png', 'Start_menu')
+    'logo': load_image('logo.png', 'Start_menu')
 }
 player_image = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (100, 100))
 monstr = pygame.transform.scale(load_image("monstr.png", "monstors"), (100, 100))
