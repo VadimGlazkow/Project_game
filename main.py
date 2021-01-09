@@ -59,6 +59,7 @@ tile_images = {
     'none': pygame.transform.scale(load_image('none.png'), (25, 25))
 }
 player_image = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (100, 100))
+monstr = pygame.transform.scale(load_image("monstr.png", "monstors"), (100, 100))
 tile_width = tile_height = 100
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
@@ -287,43 +288,25 @@ class Opponents(pygame.sprite.Sprite):
         self.rect = rect.copy()
         self.rect.x -= 1500
         self.rect.y -= 300
-        self.image = player_image
+        self.image = monstr
         self.mask = pygame.mask.from_surface(self.image)
         self.hit_point = 2.5
         self.eat_sing = pygame.mixer.Sound('Sing\eat.wav')
         self.eat_sing.set_volume(0.4)
-        self.eat_gold_sing = pygame.mixer.Sound('Sing\gold.wav')
-        self.apple_hit = pygame.mixer.Sound('Sing\/apple_hit.wav')
         self.died_sing = pygame.mixer.Sound('Sing\/died.wav')
-        self.dict_stop_hero = {
-            "up": pygame.transform.scale(load_image("hero_stand_up.png", "heros"), (100, 100)),
-            "down": pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (100, 100)),
-            "right": pygame.transform.scale(load_image("hero_stand_right.png", "heros"), (100, 100))
-        }
-        self.dict_stop_hero["left"] = pygame.transform.flip(self.dict_stop_hero["right"], True, False)
 
         self.dict_go_hero = {
-            "up": AnimatedSprite(pygame.transform.scale(load_image("hero_up.png", "heros"),
-                                                        (900, 100)), 9, 1, 0, 0),
-            "down": AnimatedSprite(pygame.transform.scale(load_image("hero_down.png", "heros"),
-                                                          (900, 100)), 9, 1, 0, 0),
-            "left": AnimatedSprite(pygame.transform.scale(load_image("hero_left.png", "heros"),
-                                                          (900, 100)), 9, 1, 0, 0),
-            "right": AnimatedSprite(pygame.transform.scale(load_image("hero_right.png", "heros"),
-                                                           (900, 100)), 9, 1, 0, 0)
+            "up": AnimatedSprite(pygame.transform.scale(load_image("zombie_up.png", "monstors"),
+                                                        (700, 100)), 7, 1, 0, 0),
+            "down": AnimatedSprite(pygame.transform.scale(load_image("zombie_down.png", "monstors"),
+                                                          (700, 100)), 7, 1, 0, 0),
+            "left": AnimatedSprite(pygame.transform.scale(load_image("zombie_left.png", "monstors"),
+                                                          (700, 100)), 7, 1, 0, 0),
+            "right": AnimatedSprite(pygame.transform.scale(load_image("zombie_right.png", "monstors"),
+                                                           (700, 100)), 7, 1, 0, 0)
         }
         self.died = AnimatedSprite(pygame.transform.scale(load_image("died.png", "heros"),
                                                      (900, 100)), 8, 1, 0, 0)
-        self.dict_hit_hero = {
-            "up": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_up.png", "heros"),
-                                                        (600, 100)), 6, 1, 0, 0),
-            "down": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_down.png", "heros"),
-                                                          (700, 100)), 7, 1, 0, 0),
-            "left": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_left.png", "heros"),
-                                                          (700, 100)), 7, 1, 0, 0),
-            "right": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_right.png", "heros"),
-                                                           (700, 100)), 7, 1, 0, 0)
-        }
         self.access = {'left': False, 'right': False,
                        'up': False, 'down': False}
         self.score = 0
@@ -481,56 +464,11 @@ class Opponents(pygame.sprite.Sprite):
                 self.dict_go_hero[self.direction].update()
             elif self.move == "stop":
                 self.image = self.dict_stop_hero[self.direction]
-            elif self.move == "hit":
-                self.image = self.dict_hit_hero[self.direction].image
-                self.dict_hit_hero[self.direction].update()
-                fotos = len(self.dict_hit_hero[self.direction].frames) - 1
-                if self.dict_hit_hero[self.direction].cur_frame == fotos:
-                    self.move = "stop"
-
             self.mask = pygame.mask.from_surface(self.image)
 
             for sprite in tiles_group:
                 if pygame.sprite.collide_mask(self, sprite):
-                    if sprite.image == tile_images["apple"]:
-                        if self.move != "hit":
-                            if self.hit_point < 5:
-                                self.hit_point += 0.5
-                                sprite.image = tile_images['none']
-                                if 1280 > self.rect.x > 0 and 720 > self.rect.y > 0:
-                                    self.eat_sing.play()
-                        else:
-                            sprite.image = tile_images['none']
-                            if 1280 > self.rect.x > 0 and 720 > self.rect.y > 0:
-                                self.apple_hit.play()
-                    elif sprite.image == tile_images['gold_apple']:
-                        if self.move != "hit":
-                            if self.hit_point < 5:
-                                self.hit_point += 1
-                                if self.hit_point > 5:
-                                    self.hit_point = 5
-                                sprite.image = tile_images['none']
-                                if 1280 > self.rect.x > 0 and 720 > self.rect.y > 0:
-                                    self.eat_gold_sing.play()
-                        else:
-                            sprite.image = tile_images['none']
-                            if 1280 > self.rect.x > 0 and 720 > self.rect.y > 0:
-                                self.apple_hit.play()
-                    elif sprite.image == tile_images['apple_dark']:
-                        if self.move != "hit":
-                            self.hit_point -= 1
-                            sprite.image = tile_images['none']
-                            if self.hit_point > 0:
-                                if 1280 > self.rect.x > 0 and 720 > self.rect.y > 0:
-                                    self.eat_sing.play()
-                            else:
-                                if 1280 > self.rect.x > 0 and 720 > self.rect.y > 0:
-                                    self.died_sing.play()
-                        else:
-                            sprite.image = tile_images['none']
-                            if 1280 > self.rect.x > 0 and 720 > self.rect.y > 0:
-                                self.apple_hit.play()
-                    elif sprite.image in (tile_images["stone"], tile_images["tree"],
+                    if sprite.image in (tile_images["stone"], tile_images["tree"],
                                           tile_images["fence"], tile_images["home"],
                                           tile_images["spawn_one"], tile_images["spawn_two_1"],
                                           tile_images["spawn_two_2"]):
@@ -848,7 +786,7 @@ def game(level):
         if cord_spawn[2] == cord_spawn[1] == cord_spawn[0]:
             terminate()
             game_final()
-        if (dt.datetime.now() - time_monster).seconds >= 10 and\
+        if (dt.datetime.now() - time_monster).seconds >= 4 and\
                 len(opponents) <= 20:
             time_monster = dt.datetime.now()
             num_ran = random.randint(0, 2)
