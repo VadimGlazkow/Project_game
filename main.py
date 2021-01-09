@@ -56,7 +56,8 @@ tile_images = {
     'apple': pygame.transform.scale(load_image('apple.png'), (25, 25)),
     'gold_apple': pygame.transform.scale(load_image('gold_apple.png'), (30, 30)),
     'apple_dark': pygame.transform.scale(load_image('apple_dark.png'), (25, 25)),
-    'none': pygame.transform.scale(load_image('none.png'), (25, 25))
+    'none': pygame.transform.scale(load_image('none.png'), (25, 25)),
+    'logo': load_image('logo8.png', 'Start_menu')
 }
 player_image = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (100, 100))
 monstr = pygame.transform.scale(load_image("monstr.png", "monstors"), (100, 100))
@@ -400,7 +401,7 @@ class Opponents(pygame.sprite.Sprite):
                 if straw == self.negative_direct[self.direction]:
                     if straw in ('left', 'right') and\
                             self.direction in ('left', 'right'):
-                        if abs(self.rect.y - target.rect.y) <= 20 and\
+                        if abs(self.rect.y - target.rect.y) <= 40 and\
                                 self.access[self.negative_direct[self.direction]]:
                             new_straw = self.negative_direct[self.direction]
                             flag_new_straw = True
@@ -416,7 +417,7 @@ class Opponents(pygame.sprite.Sprite):
                                 break
                     elif straw in ('up', 'down') and\
                             self.direction in ('up', 'down'):
-                        if abs(self.rect.x - target.rect.x) <= 25 and\
+                        if abs(self.rect.x - target.rect.x) <= 50 and\
                                 self.access[self.negative_direct[self.direction]]:
                             new_straw = self.negative_direct[self.direction]
                             flag_new_straw = True
@@ -481,21 +482,19 @@ class Opponents(pygame.sprite.Sprite):
                             if self.rect.y <= target.rect.y:
                                 self.direction = lst_straw[0]
             elif not lst_straw:
-                if self.back_go:
+                if not self.access[self.direction]:
                     self.direction = self.negative_direct[self.direction]
-                    self.back_go = False
-                else:
-                    if not self.access[self.direction]:
-                        self.direction = self.negative_direct[self.direction]
+                self.back_go = False
 
-        self.rect.x += self.dict_cor_walk[self.direction][0]
-        self.rect.y += self.dict_cor_walk[self.direction][1]
-        self.score += 1
-        self.score %= 25
-        if not self.check_motion():
-            self.rect.x -= self.dict_cor_walk[self.direction][0]
-            self.rect.y -= self.dict_cor_walk[self.direction][1]
-            self.score = 0
+        if not pygame.sprite.collide_mask(self, target):
+            self.rect.x += self.dict_cor_walk[self.direction][0]
+            self.rect.y += self.dict_cor_walk[self.direction][1]
+            self.score += 1
+            self.score %= 25
+            if not self.check_motion():
+                self.rect.x -= self.dict_cor_walk[self.direction][0]
+                self.rect.y -= self.dict_cor_walk[self.direction][1]
+                self.score = 0
 
         if self.hit_point > 0:
             self.image = self.dict_go_hero[self.direction].image
@@ -688,6 +687,7 @@ def game(level):
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("DEFENDER OF THE FOREST")
+    pygame.display.set_icon(tile_images['logo'])
     start_game(screen)
     pygame.mixer.music.load('Sing\Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
     pygame.mixer.music.set_volume(0.025)
