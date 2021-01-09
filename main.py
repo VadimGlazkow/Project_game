@@ -292,7 +292,7 @@ class Opponents(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.hit_point = 2.5
         self.eat_sing = pygame.mixer.Sound('Sing\eat.wav')
-        self.eat_sing.set_volume(0.4)ццццц
+        self.eat_sing.set_volume(0.4)
         self.died_sing = pygame.mixer.Sound('Sing\/died.wav')
 
         self.dict_go_hero = {
@@ -686,7 +686,7 @@ def life_point(screen, hit_point):
 def game(level):
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Перемещение героя. Новый уровень")
+    pygame.display.set_caption("DEFENDER OF THE FOREST")
     start_game(screen)
     pygame.mixer.music.load('Sing\Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
     pygame.mixer.music.set_volume(0.025)
