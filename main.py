@@ -412,7 +412,7 @@ class Opponents(pygame.sprite.Sprite):
                                     flag_new_straw = False
                             if flag_new_straw:
                                 self.direction = new_straw
-                                self.back_go = False
+                                self.back_go = True
                                 break
                     elif straw in ('up', 'down') and\
                             self.direction in ('up', 'down'):
@@ -428,7 +428,7 @@ class Opponents(pygame.sprite.Sprite):
                                     flag_new_straw = False
                             if flag_new_straw:
                                 self.direction = new_straw
-                                self.back_go = False
+                                self.back_go = True
                                 break
                 elif straw != self.direction:
                     if self.access[straw]:
@@ -439,7 +439,6 @@ class Opponents(pygame.sprite.Sprite):
             dict_cor['down'] = dict_cor['up']
             if self.back_go:
                 lst_straw = []
-                self.back_go = False
             if len(lst_straw) == 2:
                 if not self.access[self.direction]:
                     if lst_straw[0] in ('left', 'right'):
@@ -481,8 +480,13 @@ class Opponents(pygame.sprite.Sprite):
                         elif lst_straw[0] == 'down':
                             if self.rect.y <= target.rect.y:
                                 self.direction = lst_straw[0]
-            elif not lst_straw and self.back_go:
-                self.direction = self.negative_direct[self.direction]
+            elif not lst_straw:
+                if self.back_go:
+                    self.direction = self.negative_direct[self.direction]
+                    self.back_go = False
+                else:
+                    if not self.access[self.direction]:
+                        self.direction = self.negative_direct[self.direction]
 
         self.rect.x += self.dict_cor_walk[self.direction][0]
         self.rect.y += self.dict_cor_walk[self.direction][1]
