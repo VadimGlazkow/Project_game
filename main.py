@@ -292,7 +292,7 @@ class Opponents(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.hit_point = 2.5
         self.eat_sing = pygame.mixer.Sound('Sing\eat.wav')
-        self.eat_sing.set_volume(0.4)
+        self.eat_sing.set_volume(0.4)ццццц
         self.died_sing = pygame.mixer.Sound('Sing\/died.wav')
 
         self.dict_go_hero = {
