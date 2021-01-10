@@ -370,7 +370,7 @@ class Opponents(pygame.sprite.Sprite):
                         target.hit_point -= 1
                         self.hit_time = dt.datetime.now()
                 if target.move == 'hit':
-                    if target.direction == self.negative_direct[self.direction]:
+                    if target.direction != self.direction:
                         self.commands_hero.append(target.move)
                     else:
                         self.commands_hero.append(None)
