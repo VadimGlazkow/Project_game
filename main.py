@@ -769,6 +769,7 @@ def game_final(screen):
             game(level)
         pygame.display.flip()
         clock.tick(FPS)
+    pygame.mixer.music.load('Sing\Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
 
 
 def life_point(screen, hit_point):
