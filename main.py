@@ -178,17 +178,6 @@ class Player(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
         collect = False
-        '''time_new_hit = dt.datetime.now()
-        for sprite in opponents:
-            if pygame.sprite.collide_mask(self, sprite):
-                if sprite.hit_time:
-                    if self.move != "hit" and (time_new_hit - sprite.hit_time).seconds >= 2:
-                        self.hit_point -= 1
-                        sprite.hit_time = time_new_hit
-                    elif self.move == 'hit':
-                        sprite.hit_point -= 1
-                else:
-                    sprite.hit_time = dt.datetime.now()'''
 
         for sprite in tiles_group:
             if pygame.sprite.collide_mask(self, sprite):
