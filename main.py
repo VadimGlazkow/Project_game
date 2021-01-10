@@ -729,6 +729,8 @@ def start_game(screen):
             screen.blit(image_mouse, cor_mouse)
         if rez:
             pygame.mixer.music.pause()
+            pygame.mixer.music.load('Sing\Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
+            pygame.mixer.music.set_volume(0.025)
             run = False
         pygame.display.flip()
         clock.tick(FPS)
@@ -769,7 +771,6 @@ def game_final(screen):
             game(level)
         pygame.display.flip()
         clock.tick(FPS)
-    pygame.mixer.music.load('Sing\Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
 
 
 def life_point(screen, hit_point):
@@ -840,7 +841,7 @@ def game(level):
                 elif event.key == pygame.K_ESCAPE:
                     pygame.mixer.music.pause()
                     start_game(screen)
-                    pygame.mixer.music.unpause()
+                    pygame.mixer.music.play(-1)
             elif event.type == pygame.KEYUP:
                 directions = [("left", pygame.K_LEFT), ("right", pygame.K_RIGHT),
                               ("up", pygame.K_UP), ("down", pygame.K_DOWN), ('down', pygame.K_s),
