@@ -10,6 +10,7 @@ WIDTH, HEIGHT = 1280, 720
 SIZE_HERO = 50, 60
 GRAVITY = 0.2
 
+
 def load_image(name, file="tiles"):
     fullname = os.path.join(file, name)
     if not os.path.isfile(fullname):
@@ -612,8 +613,7 @@ def load_level(filename):
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
 
 
-def create_particles(position):
-    particle_count = 5
+def create_particles(position, particle_count):
     numbers = range(-5, 6)
     for _ in range(particle_count):
         Particle(position, random.choice(numbers), random.choice(numbers))
@@ -737,6 +737,7 @@ def start_game(screen):
 
 
 def game_final(screen):
+    time_for_stars = dt.datetime.now()
     pygame.mixer.music.pause()
     pygame.mixer.music.load('Sing\sound_end.wav')
     pygame.mixer.music.set_volume(0.5)
@@ -757,7 +758,15 @@ def game_final(screen):
             elif event.type == pygame.MOUSEMOTION:
                 cor_mouse = event.pos
 
-        create_particles((random.randint(0, 1280), random.randint(0, 220)))
+        if 6 >= (dt.datetime.now() - time_for_stars).seconds >= 4:
+            create_particles((random.randint(0, 1280), random.randint(0, 220)), 4)
+        elif 7 >= (dt.datetime.now() - time_for_stars).seconds >= 6:
+            create_particles((random.randint(0, 1280), random.randint(0, 220)), 3)
+        elif (dt.datetime.now() - time_for_stars).seconds >= 8:
+            create_particles((random.randint(0, 1280), random.randint(0, 220)), 2)
+        else:
+            create_particles((random.randint(0, 1280), random.randint(0, 220)), 5)
+
         star_group.update()
         screen.blit(fon, (0, 0))
         star_group.draw(screen)
@@ -898,6 +907,7 @@ def game(level):
             make_new_apple()
             time_spawn_apple = now_time
         if cord_spawn[2] == cord_spawn[1] == cord_spawn[0]:
+            time.sleep(0.5)
             game_final(screen)
         if (dt.datetime.now() - time_monster).seconds >= 2 and\
                 len(opponents) <= 15:
