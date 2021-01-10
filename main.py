@@ -105,7 +105,7 @@ class Player(pygame.sprite.Sprite):
         self.hp_plus = pygame.mixer.Sound('Sing\/hp_plus.wav')
         self.hp_plus.set_volume(0.3)
         self.hp_minus = pygame.mixer.Sound('Sing\/hp_minus.wav')
-        self.hp_minus.set_volume(0.3)
+        self.hp_minus.set_volume(0.2)
         self.dict_stop_hero = {
             "up": pygame.transform.scale(load_image("hero_stand_up.png", "heros"), (100, 100)),
             "down": pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (100, 100)),
@@ -296,11 +296,9 @@ class Opponents(pygame.sprite.Sprite):
         self.rect.y -= 300
         self.image = monstr
         self.hp_minus = pygame.mixer.Sound('Sing\/hp_minus.wav')
-        self.hp_minus.set_volume(0.3)
+        self.hp_minus.set_volume(0.2)
         self.mask = pygame.mask.from_surface(self.image)
         self.hit_point = 2.5
-        self.eat_sing = pygame.mixer.Sound('Sing\eat.wav')
-        self.eat_sing.set_volume(0.4)
         self.died_sing = pygame.mixer.Sound('Sing\/died.wav')
 
         self.dict_go_hero = {
@@ -343,25 +341,25 @@ class Opponents(pygame.sprite.Sprite):
             self.rect.x -= int(new_x * 1.5) + speed
             return False
 
-        self.rect.x -= int(new_x * 1.5)
+        self.rect.x -= int(new_x * 2.5)
         if pygame.sprite.spritecollideany(self, tiles_group):
-            self.rect.x += int(new_x * 1.5)
+            self.rect.x += int(new_x * 2.5)
         else:
-            self.rect.x += int(new_x * 1.5) + speed
+            self.rect.x += int(new_x * 2.5) + speed
             return False
 
-        self.rect.y += int(new_y * 2.3)
+        self.rect.y += int(new_y * 1.3)
         if pygame.sprite.spritecollideany(self, tiles_group):
-            self.rect.y -= int(new_y * 2.3)
+            self.rect.y -= int(new_y * 1.3)
         else:
-            self.rect.y -= int(new_y * 2.3) + speed
+            self.rect.y -= int(new_y * 1.3) + speed
             return False
 
-        self.rect.y -= int(new_y * 1.3)
+        self.rect.y -= int(new_y * 2.3)
         if pygame.sprite.spritecollideany(self, tiles_group):
-            self.rect.y += int(new_y * 1.3)
+            self.rect.y += int(new_y * 2.3)
         else:
-            self.rect.y += int(new_y * 1.3) + speed
+            self.rect.y += int(new_y * 2.3) + speed
             return False
         return True
 
