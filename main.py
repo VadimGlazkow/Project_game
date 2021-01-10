@@ -703,6 +703,9 @@ class Button:
 
 
 def start_game(screen):
+    pygame.mixer.music.load('Sing\sing_start_menu.wav')
+    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.play()
     fon = pygame.transform.scale(pygame.image.load('Start_menu\/fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     clock = pygame.time.Clock()
@@ -725,6 +728,7 @@ def start_game(screen):
         if pygame.mouse.get_focused():
             screen.blit(image_mouse, cor_mouse)
         if rez:
+            pygame.mixer.music.pause()
             run = False
         pygame.display.flip()
         clock.tick(FPS)
@@ -761,6 +765,7 @@ def game_final(screen):
         if pygame.mouse.get_focused():
             screen.blit(image_mouse, cor_mouse)
         if rez:
+            pygame.mixer.music.pause()
             game(level)
         pygame.display.flip()
         clock.tick(FPS)
@@ -794,7 +799,7 @@ def game(level):
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("DEFENDER OF THE FOREST")
     pygame.display.set_icon(tile_images['logo'])
-    game_final(screen)
+    start_game(screen)
     pygame.mixer.music.load('Sing\Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
     pygame.mixer.music.set_volume(0.025)
     pygame.mixer.music.play(-1)
