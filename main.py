@@ -178,7 +178,7 @@ class Player(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
         collect = False
-        time_new_hit = dt.datetime.now()
+        '''time_new_hit = dt.datetime.now()
         for sprite in opponents:
             if pygame.sprite.collide_mask(self, sprite):
                 if sprite.hit_time:
@@ -188,7 +188,7 @@ class Player(pygame.sprite.Sprite):
                     elif self.move == 'hit':
                         sprite.hit_point -= 1
                 else:
-                    sprite.hit_time = dt.datetime.now()
+                    sprite.hit_time = dt.datetime.now()'''
 
         for sprite in tiles_group:
             if pygame.sprite.collide_mask(self, sprite):
@@ -323,7 +323,11 @@ class Opponents(pygame.sprite.Sprite):
         self.cor_hero_bot = None
         self.back_go = False
         self.direction = None
-        self.hit_time = dt.datetime.now()
+        self.determine = 25
+        self.hit_time = None
+        self.first_hit = True
+        self.commands_hero = None
+        self.died_music = True
 
     def check_motion(self, speed=tile_width // 25):
         for sprite in tiles_group:
@@ -348,11 +352,11 @@ class Opponents(pygame.sprite.Sprite):
             self.rect.x += int(new_x * 1.5) + speed
             return False
 
-        self.rect.y += int(new_y * 1.3)
+        self.rect.y += int(new_y * 2.3)
         if pygame.sprite.spritecollideany(self, tiles_group):
-            self.rect.y -= int(new_y * 1.3)
+            self.rect.y -= int(new_y * 2.3)
         else:
-            self.rect.y -= int(new_y * 1.3) + speed
+            self.rect.y -= int(new_y * 2.3) + speed
             return False
 
         self.rect.y -= int(new_y * 1.3)
@@ -364,10 +368,36 @@ class Opponents(pygame.sprite.Sprite):
         return True
 
     def update(self, target):
+        if pygame.sprite.collide_mask(self, target):
+            if self.hit_time and self.hit_point > 0:
+                if len(self.commands_hero) >= 2:
+                    time_hit_other = dt.datetime.now()
+                    if 'hit' in self.commands_hero:
+                        self.hit_point = 0
+                        self.first_hit = False
+                    elif self.first_hit or\
+                            (time_hit_other - self.hit_time).seconds >= 1.25:
+                        self.first_hit = False
+                        target.hit_point -= 1
+                        self.hit_time = dt.datetime.now()
+                if target.move == 'hit':
+                    if target.direction == self.negative_direct[self.direction]:
+                        self.commands_hero.append(target.move)
+                    else:
+                        self.commands_hero.append(None)
+                else:
+                    self.commands_hero.append(None)
+            else:
+                self.hit_time = dt.datetime.now()
+                self.commands_hero = []
+                self.first_hit = True
+        else:
+            self.hit_time = None
+            self.commands_hero = None
+
         if self.score == 0:
             self.cor_hero_bot = [(self.rect.x, self.rect.y),
                                  (target.rect.x, target.rect.y)]
-
             self.rect.x -= 50
             self.access['left'] = self.check_motion()
             self.rect.x += 50
@@ -490,23 +520,30 @@ class Opponents(pygame.sprite.Sprite):
             self.rect.x += self.dict_cor_walk[self.direction][0]
             self.rect.y += self.dict_cor_walk[self.direction][1]
             self.score += 1
-            self.score %= 25
+            self.score %= self.determine
             if not self.check_motion():
                 self.rect.x -= self.dict_cor_walk[self.direction][0]
                 self.rect.y -= self.dict_cor_walk[self.direction][1]
                 self.score = 0
+
+        if (abs(self.rect.x - target.rect.x) <= 100 and
+                abs(self.rect.y - target.rect.y) <= 100):
+            self.determine = 1
+        else:
+            self.determine = 25
 
         if self.hit_point > 0:
             self.image = self.dict_go_hero[self.direction].image
             self.dict_go_hero[self.direction].update()
             self.mask = pygame.mask.from_surface(self.image)
         else:
+            if self.died_music:
+                self.died_sing.play()
+                self.died_music = False
             self.image = self.died.image
             self.died.update()
             fotos = len(self.died.frames) - 1
             if self.died.cur_frame == fotos:
-                if 1280 > self.rect.x > 0 and 720 > self.rect.y > 0:
-                    self.died_sing.play()
                 self.kill()
 
 
@@ -787,7 +824,7 @@ def game(level):
         if cord_spawn[2] == cord_spawn[1] == cord_spawn[0]:
             terminate()
             game_final()
-        if (dt.datetime.now() - time_monster).seconds >= 4 and\
+        if (dt.datetime.now() - time_monster).seconds >= 2 and\
                 len(opponents) <= 15:
             time_monster = dt.datetime.now()
             num_ran = random.randint(0, 2)
