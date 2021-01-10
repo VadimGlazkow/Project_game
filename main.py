@@ -57,7 +57,7 @@ tile_images = {
     'gold_apple': pygame.transform.scale(load_image('gold_apple.png'), (30, 30)),
     'apple_dark': pygame.transform.scale(load_image('apple_dark.png'), (25, 25)),
     'none': pygame.transform.scale(load_image('none.png'), (25, 25)),
-    'logo': load_image('logo.png', 'Start_menu')
+    'logo': pygame.transform.scale(load_image('logo.png', 'Start_menu'), (50, 50))
 }
 player_image = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (100, 100))
 monstr = pygame.transform.scale(load_image("monstr.png", "monstors"), (100, 100))
@@ -102,6 +102,8 @@ class Player(pygame.sprite.Sprite):
         self.eat_gold_sing = pygame.mixer.Sound('Sing\gold.wav')
         self.apple_hit = pygame.mixer.Sound('Sing\/apple_hit.wav')
         self.died_sing = pygame.mixer.Sound('Sing\/died.wav')
+        self.hp_plus = pygame.mixer.Sound('Sing\/hp_plus.wav')
+        self.hp_minus = pygame.mixer.Sound('Sing\/hp_minus.wav')
         self.dict_stop_hero = {
             "up": pygame.transform.scale(load_image("hero_stand_up.png", "heros"), (100, 100)),
             "down": pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (100, 100)),
@@ -187,6 +189,7 @@ class Player(pygame.sprite.Sprite):
                             self.hit_point += 0.5
                             sprite.image = tile_images['none']
                             self.eat_sing.play()
+                            self.hp_plus.play()
                     else:
                         sprite.image = tile_images['none']
                         self.apple_hit.play()
@@ -198,6 +201,7 @@ class Player(pygame.sprite.Sprite):
                                 self.hit_point = 5
                             sprite.image = tile_images['none']
                             self.eat_gold_sing.play()
+                            self.hp_plus.play()
                     else:
                         sprite.image = tile_images['none']
                         self.apple_hit.play()
@@ -207,6 +211,7 @@ class Player(pygame.sprite.Sprite):
                         sprite.image = tile_images['none']
                         if self.hit_point > 0:
                             self.eat_sing.play()
+                            self.hp_minus.play()
                         else:
                             self.died_sing.play()
                     else:
@@ -288,6 +293,7 @@ class Opponents(pygame.sprite.Sprite):
         self.rect.x -= 1500
         self.rect.y -= 300
         self.image = monstr
+        self.hp_minus = pygame.mixer.Sound('Sing\/hp_minus.wav')
         self.mask = pygame.mask.from_surface(self.image)
         self.hit_point = 2.5
         self.eat_sing = pygame.mixer.Sound('Sing\eat.wav')
@@ -367,6 +373,7 @@ class Opponents(pygame.sprite.Sprite):
                     elif self.first_hit or\
                             (time_hit_other - self.hit_time).seconds >= 1.25:
                         self.first_hit = False
+                        self.hp_minus.play()
                         target.hit_point -= 1
                         self.hit_time = dt.datetime.now()
                 if target.move == 'hit':
