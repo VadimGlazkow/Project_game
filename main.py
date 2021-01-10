@@ -731,6 +731,10 @@ def start_game(screen):
 
 
 def game_final(screen):
+    pygame.mixer.music.pause()
+    pygame.mixer.music.load('Sing\sound_end.wav')
+    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.play()
     fon = pygame.transform.scale(pygame.image.load('end\/Win.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     clock = pygame.time.Clock()
@@ -790,7 +794,7 @@ def game(level):
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("DEFENDER OF THE FOREST")
     pygame.display.set_icon(tile_images['logo'])
-    start_game(screen)
+    game_final(screen)
     pygame.mixer.music.load('Sing\Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
     pygame.mixer.music.set_volume(0.025)
     pygame.mixer.music.play(-1)
