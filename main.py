@@ -8,7 +8,7 @@ import datetime as dt
 FPS = 60
 WIDTH, HEIGHT = 1280, 720
 SIZE_HERO = 50, 60
-
+GRAVITY = 0.2
 
 def load_image(name, file="tiles"):
     fullname = os.path.join(file, name)
@@ -61,7 +61,8 @@ tile_images = {
     'gold_apple': pygame.transform.scale(load_image('gold_apple.png'), (30, 30)),
     'apple_dark': pygame.transform.scale(load_image('apple_dark.png'), (25, 25)),
     'none': pygame.transform.scale(load_image('none.png'), (25, 25)),
-    'logo': pygame.transform.scale(load_image('logo.png', 'Start_menu'), (50, 50))
+    'logo': pygame.transform.scale(load_image('logo.png', 'Start_menu'), (50, 50)),
+    'star': load_image('star.png', 'end')
 }
 player_image = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (100, 100))
 monstr = pygame.transform.scale(load_image("monstr.png", "monstors"), (100, 100))
@@ -71,6 +72,7 @@ tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 animation_group = pygame.sprite.Group()
 opponents = pygame.sprite.Group()
+star_group = pygame.sprite.Group()
 cord_spawn = []
 
 
@@ -359,7 +361,7 @@ class Opponents(pygame.sprite.Sprite):
     def update(self, target):
         if pygame.sprite.collide_mask(self, target):
             if self.hit_time and self.hit_point > 0:
-                if len(self.commands_hero) >= 2:
+                if len(self.commands_hero) >= random.choice((2, 2, 1)):
                     time_hit_other = dt.datetime.now()
                     if 'hit' in self.commands_hero:
                         self.hit_point = 0
@@ -561,6 +563,29 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.image = self.frames[self.cur_frame]
 
 
+class Particle(pygame.sprite.Sprite):
+    fire = [tile_images['star']]
+    for scale in (5, 10, 20):
+        fire.append(pygame.transform.scale(fire[0], (scale, scale)))
+
+    def __init__(self, pos, dx, dy):
+        super().__init__(star_group)
+        self.image = random.choice(self.fire)
+        self.rect = self.image.get_rect()
+
+        self.velocity = [dx, dy]
+        self.rect.x, self.rect.y = pos
+        self.screen_rect = (0, 0, WIDTH, HEIGHT)
+        self.gravity = GRAVITY
+
+    def update(self):
+        self.velocity[1] += self.gravity
+        self.rect.x += self.velocity[0]
+        self.rect.y += self.velocity[1]
+        if not self.rect.colliderect(self.screen_rect):
+            self.kill()
+
+
 class Camera:
     def __init__(self):
         self.dx = 0
@@ -585,6 +610,13 @@ def load_level(filename):
         level_map = [line.strip() for line in mapFile]
     max_width = max(map(len, level_map))
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
+
+
+def create_particles(position):
+    particle_count = 5
+    numbers = range(-5, 6)
+    for _ in range(particle_count):
+        Particle(position, random.choice(numbers), random.choice(numbers))
 
 
 def generate_level(level):
@@ -714,7 +746,12 @@ def game_final(screen):
                 terminate()
             elif event.type == pygame.MOUSEMOTION:
                 cor_mouse = event.pos
+
+        create_particles((random.randint(0, 1280), random.randint(0, 220)))
+        star_group.update()
         screen.blit(fon, (0, 0))
+        star_group.draw(screen)
+
         rez = start_btn.draw("В главное меню", 30, 410, screen)
         quit_btn.draw('Выйти', 30, 520, screen, terminate)
         if pygame.mouse.get_focused():
@@ -857,7 +894,7 @@ def game(level):
             num_ran = random.randint(0, 2)
             while cord_spawn[num_ran] is None:
                 num_ran = random.randint(0, len(cord_spawn) - 1)
-            #Opponents(cord_spawn[num_ran])
+            Opponents(cord_spawn[num_ran])
         for sprite in opponents:
             sprite.update(player)
 
