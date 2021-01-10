@@ -46,6 +46,10 @@ tile_images = {
                                             (400, 120)),
     'Start_click': pygame.transform.scale(load_image('Start_click.png', 'Start_menu'),
                                           (400, 120)),
+    'go_menu_onclick': pygame.transform.scale(load_image('go_menu_onclick.png', 'end'),
+                                         (400, 120)),
+    'go_menu_click': pygame.transform.scale(load_image('go_menu_click.png', 'end'),
+                                         (400, 120)),
     'quit_onclick': pygame.transform.scale(load_image('quit_onclick.png', 'Start_menu'),
                                            (400, 120)),
     'quit_click': pygame.transform.scale(load_image('quit_click.png', 'Start_menu'),
@@ -166,17 +170,6 @@ class Player(pygame.sprite.Sprite):
                 self.died_sing.play()
                 pygame.mixer.music.pause()
                 time.sleep(1)
-                for i in opponents:
-                    i.kill()
-                for sprite in all_sprites:
-                    sprite.kill()
-                for sprite in tiles_group:
-                    sprite.kill()
-                for sprite in animation_group:
-                    sprite.kill()
-                for sprite in player_group:
-                    sprite.kill()
-                cord_spawn.clear()
                 game(level)
 
         self.mask = pygame.mask.from_surface(self.image)
@@ -704,10 +697,13 @@ def start_game(screen):
         pygame.display.flip()
         clock.tick(FPS)
 
+
 def game_final(screen):
     fon = pygame.transform.scale(pygame.image.load('end\/Win.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     clock = pygame.time.Clock()
+    start_btn = Button(tile_images['go_menu_click'], tile_images['go_menu_onclick'])
+    quit_btn = Button(tile_images['quit_click'], tile_images['quit_onclick'])
     run = True
     pygame.mouse.set_visible(False)
     image_mouse = load_image("mouse.png", "Start_menu")
@@ -719,8 +715,12 @@ def game_final(screen):
             elif event.type == pygame.MOUSEMOTION:
                 cor_mouse = event.pos
         screen.blit(fon, (0, 0))
+        rez = start_btn.draw("В главное меню", 30, 410, screen)
+        quit_btn.draw('Выйти', 30, 520, screen, terminate)
         if pygame.mouse.get_focused():
             screen.blit(image_mouse, cor_mouse)
+        if rez:
+            game(level)
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -738,6 +738,17 @@ def life_point(screen, hit_point):
 
 
 def game(level):
+    for i in opponents:
+        i.kill()
+    for sprite in all_sprites:
+        sprite.kill()
+    for sprite in tiles_group:
+        sprite.kill()
+    for sprite in animation_group:
+        sprite.kill()
+    for sprite in player_group:
+        sprite.kill()
+    cord_spawn.clear()
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("DEFENDER OF THE FOREST")
@@ -846,7 +857,7 @@ def game(level):
             num_ran = random.randint(0, 2)
             while cord_spawn[num_ran] is None:
                 num_ran = random.randint(0, len(cord_spawn) - 1)
-            Opponents(cord_spawn[num_ran])
+            #Opponents(cord_spawn[num_ran])
         for sprite in opponents:
             sprite.update(player)
 
