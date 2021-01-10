@@ -103,7 +103,9 @@ class Player(pygame.sprite.Sprite):
         self.apple_hit = pygame.mixer.Sound('Sing\/apple_hit.wav')
         self.died_sing = pygame.mixer.Sound('Sing\/died.wav')
         self.hp_plus = pygame.mixer.Sound('Sing\/hp_plus.wav')
+        self.hp_plus.set_volume(0.3)
         self.hp_minus = pygame.mixer.Sound('Sing\/hp_minus.wav')
+        self.hp_minus.set_volume(0.3)
         self.dict_stop_hero = {
             "up": pygame.transform.scale(load_image("hero_stand_up.png", "heros"), (100, 100)),
             "down": pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (100, 100)),
@@ -294,6 +296,7 @@ class Opponents(pygame.sprite.Sprite):
         self.rect.y -= 300
         self.image = monstr
         self.hp_minus = pygame.mixer.Sound('Sing\/hp_minus.wav')
+        self.hp_minus.set_volume(0.3)
         self.mask = pygame.mask.from_surface(self.image)
         self.hit_point = 2.5
         self.eat_sing = pygame.mixer.Sound('Sing\eat.wav')
