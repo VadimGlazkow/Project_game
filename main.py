@@ -730,7 +730,7 @@ def start_game(screen):
         if rez:
             pygame.mixer.music.pause()
             pygame.mixer.music.load('Sing\Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
-            pygame.mixer.music.set_volume(0.025)
+            pygame.mixer.music.set_volume(0.05)
             run = False
         pygame.display.flip()
         clock.tick(FPS)
@@ -803,7 +803,7 @@ def game(level):
     pygame.display.set_icon(tile_images['logo'])
     start_game(screen)
     pygame.mixer.music.load('Sing\Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
-    pygame.mixer.music.set_volume(0.025)
+    pygame.mixer.music.set_volume(0.05)
     pygame.mixer.music.play(-1)
     clock = pygame.time.Clock()
     fon = pygame.transform.scale(load_image('fon.jpg'), (WIDTH, HEIGHT))
