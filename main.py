@@ -704,6 +704,26 @@ def start_game(screen):
         pygame.display.flip()
         clock.tick(FPS)
 
+def game_final(screen):
+    fon = pygame.transform.scale(pygame.image.load('end\/Win.jpg'), (WIDTH, HEIGHT))
+    screen.blit(fon, (0, 0))
+    clock = pygame.time.Clock()
+    run = True
+    pygame.mouse.set_visible(False)
+    image_mouse = load_image("mouse.png", "Start_menu")
+    cor_mouse = 0, 0
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.MOUSEMOTION:
+                cor_mouse = event.pos
+        screen.blit(fon, (0, 0))
+        if pygame.mouse.get_focused():
+            screen.blit(image_mouse, cor_mouse)
+        pygame.display.flip()
+        clock.tick(FPS)
+
 
 def life_point(screen, hit_point):
     heart_x, heart_y = 20, 20
@@ -819,8 +839,7 @@ def game(level):
             make_new_apple()
             time_spawn_apple = now_time
         if cord_spawn[2] == cord_spawn[1] == cord_spawn[0]:
-            terminate()
-            game_final()
+            game_final(screen)
         if (dt.datetime.now() - time_monster).seconds >= 2 and\
                 len(opponents) <= 15:
             time_monster = dt.datetime.now()
