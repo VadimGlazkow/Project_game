@@ -11,13 +11,22 @@ SIZE_HERO = 50, 60
 GRAVITY = 0.2
 
 
-def load_image(name, file="tiles"):
+def load_image(name, file="tiles"):  # Загрузка изображения
     fullname = os.path.join(file, name)
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
         sys.exit()
     image = pygame.image.load(fullname)
     return image
+
+
+def load_sound(name, file='Sing'):  # Загрузка звука
+    fullname = os.path.join(file, name)
+    if not os.path.isfile(fullname):
+        print(f"Файл со звуком '{fullname}' не найден")
+        sys.exit()
+    sound = pygame.mixer.Sound(fullname)
+    return sound
 
 
 tile_images = {
@@ -28,9 +37,9 @@ tile_images = {
     'home': pygame.transform.scale(load_image('home.jpg'), (200, 200)),
     'spawn_one': pygame.transform.scale(load_image('spawn.png'), (200, 300)),
     'spawn_two_1': pygame.transform.flip(pygame.transform.scale(load_image('spawn.png'),
-                                                              (200, 300)), True, False),
+                                                                (200, 300)), True, False),
     'spawn_two_2': pygame.transform.flip(pygame.transform.scale(load_image('spawn.png'),
-                                                              (200, 300)), True, False),
+                                                                (200, 300)), True, False),
     'flower_one': pygame.transform.scale(load_image('flower_one.png'), (50, 50)),
     'flower_two': pygame.transform.scale(load_image('flower_two.png'), (50, 50)),
     'flower_three': pygame.transform.scale(load_image('flower_three.png'), (50, 50)),
@@ -48,9 +57,9 @@ tile_images = {
     'Start_click': pygame.transform.scale(load_image('Start_click.png', 'Start_menu'),
                                           (400, 120)),
     'go_menu_onclick': pygame.transform.scale(load_image('go_menu_onclick.png', 'end'),
-                                         (400, 120)),
+                                              (400, 120)),
     'go_menu_click': pygame.transform.scale(load_image('go_menu_click.png', 'end'),
-                                         (400, 120)),
+                                            (400, 120)),
     'quit_onclick': pygame.transform.scale(load_image('quit_onclick.png', 'Start_menu'),
                                            (400, 120)),
     'quit_click': pygame.transform.scale(load_image('quit_click.png', 'Start_menu'),
@@ -65,8 +74,9 @@ tile_images = {
     'logo': pygame.transform.scale(load_image('logo.png', 'Start_menu'), (50, 50)),
     'star': load_image('star.png', 'end')
 }
-player_image = pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (100, 100))
-monstr = pygame.transform.scale(load_image("monstr.png", "monstors"), (100, 100))
+
+player_image = pygame.transform.scale(load_image("hero_stand_down.png", "hero"), (100, 100))
+monster = pygame.transform.scale(load_image("monster.png", "monsters"), (100, 100))
 tile_width = tile_height = 100
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
@@ -77,7 +87,7 @@ star_group = pygame.sprite.Group()
 cord_spawn = []
 
 
-class Tile(pygame.sprite.Sprite):
+class Tile(pygame.sprite.Sprite):  # Класс для неподвижных в течение игры объектов
     def __init__(self, tile_type, pos_x, pos_y):
         if tile_type == "fon":
             super().__init__(all_sprites)
@@ -90,12 +100,13 @@ class Tile(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.spawn = True
 
+    '''Метод для возможного изменения положения тела (для реализации камеры)'''
     def update(self, maybe_x=0, maybe_y=0):
         self.rect.x += maybe_x
         self.rect.y += maybe_y
 
 
-class Player(pygame.sprite.Sprite):
+class Player(pygame.sprite.Sprite):  # Класс основного персонажа
     def __init__(self, pos_x, pos_y):
         super().__init__(player_group, all_sprites)
         self.image = player_image
@@ -104,47 +115,52 @@ class Player(pygame.sprite.Sprite):
             tile_width * pos_x, tile_height * pos_y)
         self.mask = pygame.mask.from_surface(self.image)
         self.hit_point = 2.5
-        self.eat_sing = pygame.mixer.Sound('Sing\eat.wav')
+        self.eat_sing = load_sound('eat.wav')
         self.eat_sing.set_volume(0.4)
-        self.eat_gold_sing = pygame.mixer.Sound('Sing\gold.wav')
-        self.apple_hit = pygame.mixer.Sound('Sing\/apple_hit.wav')
-        self.died_sing = pygame.mixer.Sound('Sing\/died.wav')
-        self.hp_plus = pygame.mixer.Sound('Sing\/hp_plus.wav')
+        self.eat_gold_sing = load_sound('gold.wav')
+        self.apple_hit = load_sound('apple_hit.wav')
+        self.died_sing = load_sound('died.wav')
+        self.hp_plus = load_sound('hp_plus.wav')
         self.hp_plus.set_volume(0.3)
-        self.hp_minus = pygame.mixer.Sound('Sing\/hp_minus.wav')
+        self.hp_minus = load_sound('hp_minus.wav')
         self.hp_minus.set_volume(0.2)
         self.dict_stop_hero = {
-            "up": pygame.transform.scale(load_image("hero_stand_up.png", "heros"), (100, 100)),
-            "down": pygame.transform.scale(load_image("hero_stand_down.png", "heros"), (100, 100)),
-            "right": pygame.transform.scale(load_image("hero_stand_right.png", "heros"), (100, 100))
+            "up": pygame.transform.scale(load_image("hero_stand_up.png", "hero"), (100, 100)),
+            "down": pygame.transform.scale(load_image("hero_stand_down.png", "hero"), (100, 100)),
+            "right": pygame.transform.scale(load_image("hero_stand_right.png", "hero"), (100, 100))
         }
         self.dict_stop_hero["left"] = pygame.transform.flip(self.dict_stop_hero["right"], True, False)
 
         self.dict_go_hero = {
-            "up": AnimatedSprite(pygame.transform.scale(load_image("hero_up.png", "heros"),
-                                                             (900, 100)), 9, 1, 0, 0),
-            "down": AnimatedSprite(pygame.transform.scale(load_image("hero_down.png", "heros"),
-                                                               (900, 100)), 9, 1, 0, 0),
-            "left": AnimatedSprite(pygame.transform.scale(load_image("hero_left.png", "heros"),
-                                                               (900, 100)), 9, 1, 0, 0),
-            "right": AnimatedSprite(pygame.transform.scale(load_image("hero_right.png", "heros"),
-                                                                (900, 100)), 9, 1, 0, 0)
+            "up": AnimatedSprite(pygame.transform.scale(load_image("hero_up.png", "hero"),
+                                                        (900, 100)), 9, 1, 0, 0),
+            "down": AnimatedSprite(pygame.transform.scale(load_image("hero_down.png", "hero"),
+                                                          (900, 100)), 9, 1, 0, 0),
+            "left": AnimatedSprite(pygame.transform.scale(load_image("hero_left.png", "hero"),
+                                                          (900, 100)), 9, 1, 0, 0),
+            "right": AnimatedSprite(pygame.transform.scale(load_image("hero_right.png", "hero"),
+                                                           (900, 100)), 9, 1, 0, 0)
         }
-        self.died = AnimatedSprite(pygame.transform.scale(load_image("died.png", "heros"),
-                                                       (900, 100)), 8, 1, 0, 0)
+        self.died = AnimatedSprite(pygame.transform.scale(load_image("died.png", "hero"),
+                                                          (900, 100)), 8, 1, 0, 0)
         self.dict_hit_hero = {
-            "up": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_up.png", "heros"),
+            "up": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_up.png", "hero"),
                                                         (600, 100)), 6, 1, 0, 0),
-            "down": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_down.png", "heros"),
-                                                        (700, 100)), 7, 1, 0, 0),
-            "left": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_left.png", "heros"),
+            "down": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_down.png", "hero"),
                                                           (700, 100)), 7, 1, 0, 0),
-            "right": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_right.png", "heros"),
-                                                          (700, 100)), 7, 1, 0, 0)
+            "left": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_left.png", "hero"),
+                                                          (700, 100)), 7, 1, 0, 0),
+            "right": AnimatedSprite(pygame.transform.scale(load_image("hero_hit_right.png", "hero"),
+                                                           (700, 100)), 7, 1, 0, 0)
         }
         self.move = "stop"
         self.direction = "down"
 
+    '''
+    Метод для изменения положения персонажа (относительно карты),
+    для подбора нужных изображений главного героя,
+    реагирование соприкосновений с объектами игры
+    '''
     def update(self, maybe_x=0, maybe_y=0, speed=tile_width // 25):
         self.rect.x += maybe_x
         self.rect.y += maybe_y
@@ -161,19 +177,19 @@ class Player(pygame.sprite.Sprite):
         elif self.move == "hit":
             self.image = self.dict_hit_hero[self.direction].image
             self.dict_hit_hero[self.direction].update()
-            fotos = len(self.dict_hit_hero[self.direction].frames) - 1
-            if self.dict_hit_hero[self.direction].cur_frame == fotos:
+            cards = len(self.dict_hit_hero[self.direction].frames) - 1
+            if self.dict_hit_hero[self.direction].cur_frame == cards:
                 self.move = "stop"
         elif self.move == 'died':
             self.image = self.died.image
 
             self.died.update()
-            fotos = len(self.died.frames) - 1
-            if self.died.cur_frame == fotos:
+            cards = len(self.died.frames) - 1
+            if self.died.cur_frame == cards:
                 self.died_sing.play()
                 pygame.mixer.music.pause()
                 time.sleep(1)
-                game(level)
+                game(load_level(name_map))
 
         self.mask = pygame.mask.from_surface(self.image)
 
@@ -276,7 +292,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.y += int(new_y * 1.3) + speed
 
 
-class Opponents(pygame.sprite.Sprite):
+class Opponents(pygame.sprite.Sprite):  # Класс врагов (зомби)
     dict_cor_walk = {'left': (-tile_width // 25, 0),
                      'right': (tile_width // 25, 0),
                      'up': (0, -tile_width // 25),
@@ -290,25 +306,25 @@ class Opponents(pygame.sprite.Sprite):
         self.rect = rect.copy()
         self.rect.x -= 1500
         self.rect.y -= 300
-        self.image = monstr
-        self.hp_minus = pygame.mixer.Sound('Sing\/hp_minus.wav')
+        self.image = monster
+        self.hp_minus = load_sound('hp_minus.wav')
         self.hp_minus.set_volume(0.2)
         self.mask = pygame.mask.from_surface(self.image)
         self.hit_point = 2.5
-        self.died_sing = pygame.mixer.Sound('Sing\/died.wav')
+        self.died_sing = load_sound('died.wav')
 
         self.dict_go_hero = {
-            "up": AnimatedSprite(pygame.transform.scale(load_image("zombie_up.png", "monstors"),
+            "up": AnimatedSprite(pygame.transform.scale(load_image("zombie_up.png", "monsters"),
                                                         (700, 100)), 7, 1, 0, 0),
-            "down": AnimatedSprite(pygame.transform.scale(load_image("zombie_down.png", "monstors"),
+            "down": AnimatedSprite(pygame.transform.scale(load_image("zombie_down.png", "monsters"),
                                                           (700, 100)), 7, 1, 0, 0),
-            "left": AnimatedSprite(pygame.transform.scale(load_image("zombie_left.png", "monstors"),
+            "left": AnimatedSprite(pygame.transform.scale(load_image("zombie_left.png", "monsters"),
                                                           (700, 100)), 7, 1, 0, 0),
-            "right": AnimatedSprite(pygame.transform.scale(load_image("zombie_right.png", "monstors"),
+            "right": AnimatedSprite(pygame.transform.scale(load_image("zombie_right.png", "monsters"),
                                                            (700, 100)), 7, 1, 0, 0)
         }
-        self.died = AnimatedSprite(pygame.transform.scale(load_image("died.png", "heros"),
-                                                     (900, 100)), 8, 1, 0, 0)
+        self.died = AnimatedSprite(pygame.transform.scale(load_image("died.png", "hero"),
+                                                          (900, 100)), 8, 1, 0, 0)
         self.access = {'left': False, 'right': False,
                        'up': False, 'down': False}
         self.score = 0
@@ -321,6 +337,7 @@ class Opponents(pygame.sprite.Sprite):
         self.commands_hero = None
         self.died_music = True
 
+    '''Проверка на возможное передвижение зомби'''
     def check_motion(self, speed=tile_width // 25):
         for sprite in tiles_group:
             if pygame.sprite.collide_mask(self, sprite):
@@ -359,6 +376,10 @@ class Opponents(pygame.sprite.Sprite):
             return False
         return True
 
+    '''
+    Изменение положения объекта, алгоритм траектории,
+    выбор нужного изображения
+    '''
     def update(self, target):
         if pygame.sprite.collide_mask(self, target):
             if self.hit_time and self.hit_point > 0:
@@ -535,12 +556,12 @@ class Opponents(pygame.sprite.Sprite):
                 self.died_music = False
             self.image = self.died.image
             self.died.update()
-            fotos = len(self.died.frames) - 1
-            if self.died.cur_frame == fotos:
+            cards = len(self.died.frames) - 1
+            if self.died.cur_frame == cards:
                 self.kill()
 
 
-class AnimatedSprite(pygame.sprite.Sprite):
+class AnimatedSprite(pygame.sprite.Sprite):  # Класс анимаций
     def __init__(self, sheet, columns, rows, x, y):
         super().__init__(animation_group)
         self.frames = []
@@ -549,6 +570,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.image = self.frames[self.cur_frame]
         self.rect = self.rect.move(x, y)
 
+    '''Разрезание ленты с изображениями на отдельные фотографии'''
     def cut_sheet(self, sheet, columns, rows):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
                                 sheet.get_height() // rows)
@@ -558,13 +580,14 @@ class AnimatedSprite(pygame.sprite.Sprite):
                 self.frames.append(sheet.subsurface(pygame.Rect(
                     frame_location, self.rect.size)))
 
+    '''Выбор нужного изображения из фотограций ленты'''
     def update(self, new_x=0, new_y=0):
         self.rect.x, self.rect.y = new_x, new_y
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
 
 
-class Particle(pygame.sprite.Sprite):
+class Particle(pygame.sprite.Sprite):  # Реализация звездочек при победе
     fire = [tile_images['star']]
     for scale in (5, 10, 20):
         fire.append(pygame.transform.scale(fire[0], (scale, scale)))
@@ -579,6 +602,7 @@ class Particle(pygame.sprite.Sprite):
         self.screen_rect = (0, 0, WIDTH, HEIGHT)
         self.gravity = GRAVITY
 
+    '''Изменение положения (эффект падения)'''
     def update(self):
         self.velocity[1] += self.gravity
         self.rect.x += self.velocity[0]
@@ -587,42 +611,44 @@ class Particle(pygame.sprite.Sprite):
             self.kill()
 
 
-class Camera:
+class Camera:  # Класс камеры игры
     def __init__(self):
         self.dx = 0
         self.dy = 0
 
+    '''Изменение положения объектов (в зону камеры)'''
     def apply(self, obj):
         obj.rect.x += self.dx
         obj.rect.y += self.dy
 
+    '''Разница в изменении положении главного персонажа'''
     def update(self, target):
         self.dx = -(target.rect.x + target.rect.w // 2 - WIDTH // 2)
         self.dy = -(target.rect.y + target.rect.h // 2 - HEIGHT // 2)
 
 
-def terminate():
+def terminate():  # Функция закрытия игры
     pygame.quit()
     sys.exit()
 
 
-def load_level(filename):
+def load_level(filename):  # Загрузка карты игры
     with open(filename, 'r') as mapFile:
         level_map = [line.strip() for line in mapFile]
     max_width = max(map(len, level_map))
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
 
 
-def create_particles(position, particle_count):
+def create_particles(position, particle_count):  # Вызов класса звездочек
     numbers = range(-5, 6)
     for _ in range(particle_count):
         Particle(position, random.choice(numbers), random.choice(numbers))
 
 
-def generate_level(level):
+def generate_level(level):  # Генерация уровня
     new_player = None
-    flowes = ['flower_one', 'flower_two', 'flower_three', 'flower_four', 'flower_five',
-              'grass_one', 'list', 'mushroom_one', 'mushroom_two', 'priming', 'stump']
+    flowers = ['flower_one', 'flower_two', 'flower_three', 'flower_four', 'flower_five',
+               'grass_one', 'list', 'mushroom_one', 'mushroom_two', 'priming', 'stump']
     Tile('fon', -7, -6)
     for y in range(len(level) - 2, -1, -1):
         for x in range(len(level[y]) - 1, -1, -1):
@@ -630,7 +656,7 @@ def generate_level(level):
             if level[y][x] == '.':
                 if random.randint(1, 10) in [1, 5, 2]:
                     num_flowers = random.randint(0, 10)
-                    Tile(flowes[num_flowers], x, y).update(25, 25)
+                    Tile(flowers[num_flowers], x, y).update(25, 25)
             elif level[y][x] == '#':
                 Tile('fence', x, y)
             elif level[y][x] == '*':
@@ -671,7 +697,7 @@ def generate_level(level):
     return new_player, dt.datetime.now()
 
 
-def make_new_apple():
+def make_new_apple():  # Генерация новых яблок
     for sprite in all_sprites:
         if sprite.image == tile_images['none'] and sprite.spawn:
             number = random.randint(1, 5)
@@ -683,30 +709,31 @@ def make_new_apple():
                 sprite.image = tile_images["apple"]
 
 
-class Button:
+class Button:  # класс кнопок
     def __init__(self, image_one, image_two):
         self.image_one = image_one
         self.image_two = image_two
 
-    def draw(self, text, x, y, screen, event1=None):
-        mausx1, mausy1 = pygame.mouse.get_pos()
+    '''Прорисовка кнопок'''
+    def draw(self, x, y, screen, event=None):
+        pos_x, pos_y = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
-        if x < mausx1 < x + 400 and y < mausy1 < y + 120:
+        if x < pos_x < x + 400 and y < pos_y < y + 120:
             screen.blit(self.image_one, (x, y))
             if click[0]:
-                if event1 is not None:
-                    event1()
+                if event is not None:
+                    event()
                 else:
                     return True
         else:
             screen.blit(self.image_two, (x, y))
 
 
-def start_game(screen):
-    pygame.mixer.music.load('Sing\sing_start_menu.wav')
+def start_game(screen):  # Функция налача игры
+    pygame.mixer.music.load('Sing/sing_start_menu.wav')
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play()
-    fon = pygame.transform.scale(pygame.image.load('Start_menu\/fon.jpg'), (WIDTH, HEIGHT))
+    fon = pygame.transform.scale(load_image('fon.jpg', 'Start_menu'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     clock = pygame.time.Clock()
     run = True
@@ -723,26 +750,26 @@ def start_game(screen):
                 cor_mouse = event.pos
 
         screen.blit(fon, (0, 0))
-        rez = start_btn.draw("Начать игру", 100, 90, screen)
-        quit_btn.draw('Выйти', 100, 230, screen, terminate)
+        rez = start_btn.draw(100, 90, screen)
+        quit_btn.draw(100, 230, screen, terminate)
         if pygame.mouse.get_focused():
             screen.blit(image_mouse, cor_mouse)
         if rez:
             pygame.mixer.music.pause()
-            pygame.mixer.music.load('Sing\Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
+            pygame.mixer.music.load('Sing/Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
             pygame.mixer.music.set_volume(0.05)
             run = False
         pygame.display.flip()
         clock.tick(FPS)
 
 
-def game_final(screen):
+def game_final(screen):  # Функция конца игры
     time_for_stars = dt.datetime.now()
     pygame.mixer.music.pause()
-    pygame.mixer.music.load('Sing\sound_end.wav')
+    pygame.mixer.music.load('Sing/sound_end.wav')
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play()
-    fon = pygame.transform.scale(pygame.image.load('end\/Win.jpg'), (WIDTH, HEIGHT))
+    fon = pygame.transform.scale(load_image('Win.jpg', 'end'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     clock = pygame.time.Clock()
     start_btn = Button(tile_images['go_menu_click'], tile_images['go_menu_onclick'])
@@ -771,8 +798,8 @@ def game_final(screen):
         screen.blit(fon, (0, 0))
         star_group.draw(screen)
 
-        rez = start_btn.draw("В главное меню", 30, 410, screen)
-        quit_btn.draw('Выйти', 30, 520, screen, terminate)
+        rez = start_btn.draw(30, 410, screen)
+        quit_btn.draw(30, 520, screen, terminate)
         if pygame.mouse.get_focused():
             screen.blit(image_mouse, cor_mouse)
         if rez:
@@ -782,7 +809,7 @@ def game_final(screen):
         clock.tick(FPS)
 
 
-def life_point(screen, hit_point):
+def life_point(screen, hit_point):  # Функция изображения сердечек
     heart_x, heart_y = 20, 20
     for heart in range(5):
         if hit_point > 0.5:
@@ -794,7 +821,7 @@ def life_point(screen, hit_point):
         hit_point -= 1
 
 
-def game(level):
+def game(level):  # Основной цикл игры
     for i in opponents:
         i.kill()
     for sprite in all_sprites:
@@ -811,7 +838,7 @@ def game(level):
     pygame.display.set_caption("DEFENDER OF THE FOREST")
     pygame.display.set_icon(tile_images['logo'])
     start_game(screen)
-    pygame.mixer.music.load('Sing\Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
+    pygame.mixer.music.load('Sing/Led_Zeppelin_-_Immigrant_Song_Thor_Ragnarok-_soundtrack_62699723.mp3')
     pygame.mixer.music.set_volume(0.05)
     pygame.mixer.music.play(-1)
     clock = pygame.time.Clock()
@@ -824,8 +851,8 @@ def game(level):
                "up": [False, [0, -tile_height // 25]],
                "down": [False, [0, tile_height // 25]]}
     list_side = []
-    hit_sing = pygame.mixer.Sound('Sing\sing_hit.wav')
-    go_sing = pygame.mixer.Sound('Sing\go_sing.wav')
+    hit_sing = load_sound('sing_hit.wav')
+    go_sing = load_sound('go_sing.wav')
     player, time_spawn_apple = generate_level(level)
     time_monster = dt.datetime.now()
     while True:
@@ -931,7 +958,6 @@ def game(level):
 
 name_map = "map.txt"
 try:
-    level = load_level(name_map)
-    game(level)
+    game(load_level(name_map))
 except FileNotFoundError:
     print(f"Карты {name_map} не существует")
